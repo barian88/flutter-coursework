@@ -10,13 +10,13 @@ class User extends StatelessWidget {
   Widget build(BuildContext context) {
     return BaseContainer(child: Column(
       children: [
-        Gap(30),
+        Gap(25),
         UserInfoCard(),
-        Gap(28),
+        Gap(25),
         Performance(),
         Gap(28),
         AccuracyRate(),
-        Gap(28),
+        Gap(25),
         ErrorDistribution(),
       ],
     ));
