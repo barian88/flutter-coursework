@@ -29,4 +29,12 @@ extension CustomColorScheme on ColorScheme {
       brightness == Brightness.light
           ? AppColors.red1
           : AppColors.red2;
+  Color get green =>
+      brightness == Brightness.light
+          ? AppColors.green1
+          : AppColors.green2;
+  Color get blue =>
+      brightness == Brightness.light
+          ? AppColors.blue1
+          : AppColors.blue2;
 }

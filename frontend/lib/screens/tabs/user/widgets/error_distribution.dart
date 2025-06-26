@@ -17,7 +17,7 @@ class ErrorDistribution extends StatelessWidget {
           ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         const Gap(30),
-        ErrorDistributionChart()
+        PieChartListview(),
       ],
     );
   }
