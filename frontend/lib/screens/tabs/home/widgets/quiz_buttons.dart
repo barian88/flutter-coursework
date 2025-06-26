@@ -19,8 +19,8 @@ class QuizButtons extends StatelessWidget {
       return Row(
         children: [
           QuizButtonContainer(
-            title: item['title'],
-            emoji: item['emoji'],
+            title: item['title']!,
+            emoji: item['emoji']!,
             index: index,
           ),
           const Gap(10),

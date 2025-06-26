@@ -27,7 +27,7 @@ class Performance extends StatelessWidget {
             ),
           ],
         ),
-        const Gap(30),
+        const Gap(24),
         AccuracyRateChart()
       ],
     );

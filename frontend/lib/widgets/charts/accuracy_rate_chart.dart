@@ -97,7 +97,7 @@ class _AccuracyRateChartState extends State<AccuracyRateChart> {
         horizontalInterval: 1,
         getDrawingHorizontalLine: (value) {
           return FlLine(
-            color: Theme.of(context).colorScheme.primaryContainer,
+            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
             strokeWidth: 1,
           );
         },

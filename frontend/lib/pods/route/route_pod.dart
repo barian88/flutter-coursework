@@ -25,14 +25,22 @@ class RouteNotifier extends _$RouteNotifier {
             return TabScaffold(child: child);
           },
           routes: [
-            GoRoute(path: '/home', builder: (context, state) => Home()),
+            GoRoute(
+              path: '/home',
+              pageBuilder: (context, state) => NoTransitionPage(child: const Home()),
+            ),
             GoRoute(
               path: '/history',
-              builder: (context, state) => Center(child: Text("History"),),
+              pageBuilder: (context, state) => NoTransitionPage(child: const History()),
             ),
-            GoRoute(path: '/guide', builder: (context, state) => Center(child: Text("Guide"),)),
-            GoRoute(path: '/user', builder: (context, state) => Center(child: Text("User"),)),
-
+            GoRoute(
+              path: '/guide',
+              pageBuilder: (context, state) => NoTransitionPage(child: const Guide()),
+            ),
+            GoRoute(
+              path: '/user',
+              pageBuilder: (context, state) => NoTransitionPage(child: const User()),
+            ),
           ],
         ),
         GoRoute(
@@ -68,6 +76,23 @@ class RouteNotifier extends _$RouteNotifier {
           },
         ),
       ],
+    );
+  }
+
+  CustomTransitionPage _buildSlidePage(GoRouterState state, Widget child) {
+    return CustomTransitionPage(
+      key: state.pageKey,
+      child: child,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset.zero;
+        final tween = Tween(begin: begin, end: end)
+            .chain(CurveTween(curve: Curves.easeInOut));
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
     );
   }
 

@@ -5,8 +5,6 @@ final ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(
       seedColor: AppColors.lightPrimaryColor,
-      // surface: lightSurfaceColor,
-      // onPrimary: lightOnPrimaryColor,
       brightness: Brightness.light,
     ).copyWith(
       primary: AppColors.lightPrimaryColor,
@@ -18,13 +16,17 @@ final ThemeData darkTheme = ThemeData(
   colorScheme: ColorScheme.fromSeed(
     seedColor: AppColors.darkPrimaryColor,
     brightness: Brightness.dark,
-    // surface: darkSurfaceColor,
-    // onPrimary: darkOnPrimaryColor,
   ).copyWith(
     primary: AppColors.darkPrimaryColor,
     secondary: AppColors.darkSecondaryColor,
   ),
-  // bottomNavigationBarTheme: BottomNavigationBarThemeData(
-  //   selectedItemColor: darkPrimaryColor,
-  // ),
+
 );
+
+
+extension CustomColorScheme on ColorScheme {
+  Color get red =>
+      brightness == Brightness.light
+          ? AppColors.red1
+          : AppColors.red2;
+}

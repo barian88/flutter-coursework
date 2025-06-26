@@ -8,20 +8,16 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return BaseContainer(
-          child: Column(
-            children: [
-              WelcomeCard(),
-              Gap(30),
-              QuizButtons(),
-              Gap(30),   //因为QuizButtons有10的垂直Padding
-              Performance(),
-            ],
-          ),
-        );
-      },
+    return BaseContainer(
+      child: Column(
+        children: [
+          WelcomeCard(),
+          Gap(26),
+          QuizButtons(),
+          Gap(26),
+          Performance(),
+        ],
+      ),
     );
   }
 }

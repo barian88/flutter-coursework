@@ -6,21 +6,15 @@ class WelcomeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final theme = Theme.of(context);
+    final purpleGradient = AppGradients.cardPurpleGradient(theme);
+
     return Container(
       width: double.infinity,
       height: 120,
       decoration: BoxDecoration(
-        gradient: RadialGradient(
-          center: Alignment.center, // 从中心扩散
-          radius: 1, // 渐变半径（0~1）
-          colors: [
-            Theme.of(context).colorScheme.primary,
-            // 起始颜色
-            // Theme.of(context).colorScheme.inversePrimary,               // 渐变目标颜色
-            AppColors.lightPurple,
-          ],
-          stops: [0, 1], // 对应 Figma 中的 0% 和 37%
-        ),
+        gradient: purpleGradient,
         borderRadius: AppRadii.medium,
       ),
       child: Row(
