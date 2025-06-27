@@ -1,27 +1,27 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'route_pod.dart';
+part of 'quiz_pod.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$routeNotifierHash() => r'fccaa9ba5c9c04e2290f86b527817d01acc4f804';
+String _$quizNotifierHash() => r'97a44b9ed535fcf8891636fa7e1987b9818e6b90';
 
-/// See also [RouteNotifier].
-@ProviderFor(RouteNotifier)
-final routeNotifierProvider =
-    AutoDisposeNotifierProvider<RouteNotifier, GoRouter>.internal(
-      RouteNotifier.new,
-      name: r'routeNotifierProvider',
+/// See also [QuizNotifier].
+@ProviderFor(QuizNotifier)
+final quizNotifierProvider =
+    AutoDisposeNotifierProvider<QuizNotifier, QuizNotifierModel>.internal(
+      QuizNotifier.new,
+      name: r'quizNotifierProvider',
       debugGetCreateSourceHash:
           const bool.fromEnvironment('dart.vm.product')
               ? null
-              : _$routeNotifierHash,
+              : _$quizNotifierHash,
       dependencies: null,
       allTransitiveDependencies: null,
     );
 
-typedef _$RouteNotifier = AutoDisposeNotifier<GoRouter>;
+typedef _$QuizNotifier = AutoDisposeNotifier<QuizNotifierModel>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

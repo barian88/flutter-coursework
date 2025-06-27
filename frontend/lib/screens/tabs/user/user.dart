@@ -12,12 +12,13 @@ class User extends StatelessWidget {
       children: [
         Gap(25),
         UserInfoCard(),
-        Gap(25),
+        Gap(28),
         Performance(),
         Gap(28),
-        AccuracyRate(),
-        Gap(25),
         ErrorDistribution(),
+        Gap(28),
+        AccuracyRate(),
+
       ],
     ));
   }

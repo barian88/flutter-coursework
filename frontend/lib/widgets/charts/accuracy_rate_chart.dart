@@ -14,6 +14,16 @@ class _AccuracyRateChartState extends State<AccuracyRateChart> {
   static const maxY = 4.0; // 最大 Y 值
   static const dataLength = 6; // 数据点数量
 
+  List<FlSpot> data = [
+    FlSpot(1, 1.7),
+    FlSpot(2.6, 2),
+    FlSpot(4, 3.2),
+    FlSpot(0, 3.1),
+    FlSpot(1.8, 2),
+    FlSpot(3.5, 3),
+    FlSpot(3, 4),
+  ]..sort((a, b) => a.x.compareTo(b.x));
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -137,15 +147,7 @@ class _AccuracyRateChartState extends State<AccuracyRateChart> {
       maxY: maxY,
       lineBarsData: [
         LineChartBarData(
-          spots: [
-            FlSpot(1, 1.7),
-            FlSpot(2.6, 2),
-            FlSpot(4, 3.2),
-            FlSpot(0, 3.1),
-            FlSpot(1.8, 2),
-            FlSpot(3.5, 3),
-            FlSpot(3, 4),
-          ]..sort((a, b) => a.x.compareTo(b.x)),
+          spots: data,
           isCurved: true,
           color: AppColors.bluePurple,
           barWidth: 5,

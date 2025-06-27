@@ -24,8 +24,6 @@ class TabScaffold extends StatelessWidget {
       actions = [ThemeModeSwitch(), Gap(16)];
     }
 
-
-
     return Scaffold(
       appBar: AppBar(title: title, actions: actions),
       bottomNavigationBar: BottomNavBar(),

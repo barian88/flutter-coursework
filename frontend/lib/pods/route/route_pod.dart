@@ -17,7 +17,7 @@ class RouteNotifier extends _$RouteNotifier {
   GoRouter build() {
     return GoRouter(
       navigatorKey: _rootNavigatorKey,
-      initialLocation: '/home',
+      initialLocation: '/login',
       routes: [
         ShellRoute(
           navigatorKey: _shellNavigatorKey,
@@ -28,6 +28,15 @@ class RouteNotifier extends _$RouteNotifier {
             GoRoute(
               path: '/home',
               pageBuilder: (context, state) => NoTransitionPage(child: const Home()),
+              routes: [
+                GoRoute(
+                  parentNavigatorKey: _rootNavigatorKey,
+                  path: '/quiz',
+                  builder: (context, state) {
+                    return const Quiz();
+                  },
+                ),
+              ]
             ),
             GoRoute(
               path: '/history',
@@ -43,37 +52,24 @@ class RouteNotifier extends _$RouteNotifier {
             ),
           ],
         ),
-        GoRoute(
-          parentNavigatorKey: _rootNavigatorKey,
-          path: '/login',
-          builder: (context, state) {
-            //
-            // final combination = state.pathParameters['combinationIndex'] ?? '';
-            // final parts = combination.split(',').map(int.parse).toList();
-            // return CombinationDetail(combinationIndex: parts);
-            return Center(child: Text("Login"));
+        ShellRoute(
+          builder: (context, state, child) {
+            return AuthenticationScaffold(child: child);
           },
-        ),
-        GoRoute(
-          parentNavigatorKey: _rootNavigatorKey,
-          path: '/register',
-          builder: (context, state) {
-            return Center(child: Text("Register"));
-          },
-        ),
-        GoRoute(
-          parentNavigatorKey: _rootNavigatorKey,
-          path: '/verification',
-          builder: (context, state) {
-            return Center(child: Text("Verification"));
-          },
-        ),
-        GoRoute(
-          parentNavigatorKey: _rootNavigatorKey,
-          path: '/quiz',
-          builder: (context, state) {
-            return Center(child: Text("Quiz"));
-          },
+          routes: [
+            GoRoute(
+              path: '/login',
+              builder: (context, state) => const Login(),
+            ),
+            GoRoute(
+              path: '/register',
+              builder: (context, state) => const Text('Register'),
+            ),
+            GoRoute(
+              path: '/verification',
+              builder: (context, state) => const Text('Verification'),
+            ),
+          ],
         ),
       ],
     );

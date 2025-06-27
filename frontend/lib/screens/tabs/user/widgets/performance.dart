@@ -55,7 +55,7 @@ class Performance extends StatelessWidget {
             ),
           ],
         ),
-        const Gap(12),
+        const Gap(15),
         LayoutBuilder(
           builder: (context, constraints) {
             final width = constraints.maxWidth;

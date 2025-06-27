@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:frontend/themes/radii.dart';
 import 'package:frontend/widgets/widgets.dart';
 import 'package:gap/gap.dart';
 
@@ -7,6 +9,7 @@ class Performance extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Column(
       children: [
         Row(
@@ -18,11 +21,18 @@ class Performance extends StatelessWidget {
                 context,
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
-            Text(
-              'View All',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary,
+            InkWell(
+              onTap: (){
+                context.go('/user');
+              },
+              splashColor: theme.colorScheme.primary.withAlpha(50),
+              borderRadius: AppRadii.small,
+              child: Text(
+                'View All',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.primary,
+                ),
               ),
             ),
           ],
