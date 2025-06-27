@@ -8,11 +8,8 @@ class InputArea extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
-    final loginState = ref.watch(loginNotifierProvider);
-    final loginNotifier = ref.read(loginNotifierProvider.notifier);
-
-    final _passwordVisible = loginState.isPasswordVisible;
+    final changePasswordState = ref.watch(changePasswordNotifierProvider);
+    final changePasswordNotifier = ref.read(changePasswordNotifierProvider.notifier);
 
     final theme = Theme.of(context);
 
@@ -20,7 +17,7 @@ class InputArea extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Email',
+            'Set Password',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             )
@@ -28,34 +25,9 @@ class InputArea extends ConsumerWidget {
         const SizedBox(height: 8),
         TextField(
           onChanged:  (value){
-            loginNotifier.update(email: value);
+            changePasswordNotifier.update(password: value);
           } ,
-          decoration: InputDecoration(
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(width: 1, color: theme.colorScheme.primary),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(width: 2, color: theme.colorScheme.primary),
-            ),
-            hintText: 'your email',
-            hintStyle: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          'Password',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          )
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          onChanged:  (value){
-            loginNotifier.update(password:  value);
-          } ,
-          obscureText: !_passwordVisible,
+          obscureText: !changePasswordState.isPasswordVisible,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             hintText: 'your password',
@@ -70,11 +42,46 @@ class InputArea extends ConsumerWidget {
             ),
             suffixIcon: IconButton(
               icon: Icon(
-              _passwordVisible ? Icons.visibility : Icons.visibility_off, size: 18,
-    ),
+                changePasswordState.isPasswordVisible ? Icons.visibility : Icons.visibility_off, size: 18,
+              ),
               onPressed: () {
-                loginNotifier.update(isPasswordVisible: !_passwordVisible);
-              }
+                changePasswordNotifier.update(isPasswordVisible: !changePasswordState.isPasswordVisible);
+              },
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+            'Confirm Password',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            )
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          onChanged:  (value){
+            changePasswordNotifier.update(confirmPassword: value);
+          } ,
+          obscureText: !changePasswordState.isConfirmPasswordVisible,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: 'your password',
+            hintStyle: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(width: 1, color: theme.colorScheme.primary),
+            ),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(width: 2, color: theme.colorScheme.primary),
+            ),
+            suffixIcon: IconButton(
+              icon: Icon(
+                changePasswordState.isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off, size: 18,
+              ),
+              onPressed: () {
+                changePasswordNotifier.update(isConfirmPasswordVisible: !changePasswordState.isConfirmPasswordVisible);
+              },
             ),
           ),
         ),

@@ -3,68 +3,51 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/widgets/widgets.dart';
 import 'package:frontend/themes/themes.dart';
 import 'package:frontend/utils/utils.dart';
-import 'package:frontend/pods/pods.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:frontend/pods/pods.dart';
 import 'input_area.dart';
 
-class Login extends ConsumerWidget {
-  const Login({super.key});
+class Register extends ConsumerWidget {
+  const Register({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final loginState = ref.watch(loginNotifierProvider);
+    final registerState = ref.watch(registerNotifierProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Logo(), centerTitle: false),
+      appBar: AppBar(title: const Logo()),
       body: BaseContainer(
         // This widget is scrollable to handle smaller screens， when the keyboard pops up
         isScrollable: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Gap(40),
+            const Gap(10),
             Text(
-              "Hello there 👋",
+              "Sign Up",
               style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
             Gap(10),
             Text(
-              "Enter your email and password to sign in ",
+              "Create an account to continue",
               style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
             ),
-            const Gap(50),
+            const Gap(35),
             InputArea(),
-            const Gap(20),
-            Row(
-              children: [
-                Spacer(),
-                InkWell(
-                  onTap: (){
-                    handleForgotPassword(context, loginState);
-                  },
-                  child: Text(
-                    "Forgot Password ?",
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
             const Gap(40),
             FilledButton(
               onPressed: () {
-                handleLogin(context, loginState);
+                // Handle register action
+                handleRegister(context, registerState);
               },
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(borderRadius: AppRadii.medium),
               ),
               child: Text(
-                "SIGN IN",
+                "Continue",
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: Colors.white,
                 ),
@@ -75,7 +58,7 @@ class Login extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  "Don't have an account? ",
+                  "Already have an account?",
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -84,10 +67,10 @@ class Login extends ConsumerWidget {
                 InkWell(
                   onTap: () {
                     // Handle navigation to sign up
-                    context.push("/register");
+                    context.go("/login");
                   },
                   child: Text(
-                    "Sign Up",
+                    "Sign In",
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.primary,
                       fontWeight: FontWeight.bold,
@@ -102,46 +85,51 @@ class Login extends ConsumerWidget {
     );
   }
 
-  void handleLogin(BuildContext context, LoginNotifierModel loginState) {
+  void handleRegister(
+    BuildContext context,
+    RegisterNotifierModel registerState,
+  ) {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     // 首先判断输入是否有效
-    if (loginState.email.isEmpty || loginState.password.isEmpty) {
+    if (registerState.username.isEmpty ||
+        registerState.email.isEmpty ||
+        registerState.password.isEmpty) {
       scaffoldMessenger.clearSnackBars();
       scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text("Please fill in all fields")),
+        SnackBar(content: Text('Please fill in all fields')),
       );
       return;
     }
-    // todo 调用API进行验证
-    // 如果验证失败， 显示错误信息
-    // scaffoldMessenger.clearSnackBars();
-    // scaffoldMessenger.showSnackBar(
-    //   SnackBar(content: Text("Email or password is incorrect")),
-    // );
-    // 如果验证成功，跳转到主页
-  }
-
-
-  void handleForgotPassword(BuildContext context, LoginNotifierModel loginState) {
-
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-    // 首先必须输入了邮箱地址
-    if (loginState.email.isEmpty) {
+    // 判断邮箱格式
+    if (!EmailUtil.isValidEmail(registerState.email)) {
       scaffoldMessenger.clearSnackBars();
       scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text("Please enter your email address first")),
+        SnackBar(content: Text('Please enter a valid email')),
       );
       return;
     }
-    // 邮箱地址格式必须正确
-    if (!EmailUtil.isValidEmail(loginState.email)) {
+    // 判断密码长度
+    if (registerState.password.length < 6 ||
+        registerState.password.length > 20) {
       scaffoldMessenger.clearSnackBars();
       scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text("Please enter a valid email address")),
+        SnackBar(content: Text('Password must be between 6 and 20 characters')),
       );
       return;
     }
-    // 跳转到验证码页面后续处理
-    context.push('/verification/login/${loginState.email}');
+    // 判断密码是否一致
+    if (registerState.password != registerState.confirmPassword) {
+      scaffoldMessenger.clearSnackBars();
+      scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
+    // 如果所有输入都有效，执行注册逻辑
+    //todo : 调用注册API,发送验证码
+
+    // 跳转到验证页面
+    context.push("/verification/register/${registerState.email}");
   }
 }

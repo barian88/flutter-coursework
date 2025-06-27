@@ -118,7 +118,6 @@ class QuizNotifierModel {
   QuizNotifierModel copyWith({
     Quiz? quiz,
     int? currentQuestionIndex,
-    int? time,
   }) {
     return QuizNotifierModel(
       quiz: quiz ?? this.quiz,
