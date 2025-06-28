@@ -16,7 +16,7 @@ class RouteNotifier extends _$RouteNotifier {
   GoRouter build() {
     return GoRouter(
       navigatorKey: _rootNavigatorKey,
-      initialLocation: '/login',
+      initialLocation: '/home',
       routes: [
         ShellRoute(
           navigatorKey: _shellNavigatorKey,
