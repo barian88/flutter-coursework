@@ -38,7 +38,7 @@ class QuizButtonContainer extends ConsumerWidget {
         onTap: () {
           switch (index) {
             case 0:
-              context.push('/home/quiz');
+              context.push('/home/new-quiz');
               break;
             case 1:
               break;

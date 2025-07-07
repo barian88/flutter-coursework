@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/pods/pods.dart';
+import 'package:frontend/utils/utils.dart';
+
 
 class QuizTimer extends ConsumerStatefulWidget {
   const QuizTimer ({super.key});
@@ -31,25 +33,9 @@ class _QuizTimerState extends ConsumerState<QuizTimer> {
 
     final theme = Theme.of(context);
 
-    return Text(getFormattedTime(time), style: theme.textTheme.bodyMedium?.copyWith(
+    return Text(TimeFormatterUtil.getFormattedTime(time), style: theme.textTheme.bodyMedium?.copyWith(
         fontWeight: FontWeight.bold
     ));
   }
-}
-
-String getFormattedTime(int time) {
-  if (time == 0) {
-    return '00:00:00';
-  }
-
-  final hours = time ~/ 3600;
-  final minutes = (time % 3600) ~/ 60;
-  final seconds = time % 60;
-
-  final hoursStr = hours.toString().padLeft(2, '0');
-  final minutesStr = minutes.toString().padLeft(2, '0');
-  final secondsStr = seconds.toString().padLeft(2, '0');
-
-  return '$hoursStr:$minutesStr:$secondsStr';
 }
 

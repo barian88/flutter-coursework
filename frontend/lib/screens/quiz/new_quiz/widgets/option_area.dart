@@ -109,7 +109,7 @@ class ChoiceOptionsContainer extends ConsumerWidget {
    final currentQuestion = quizState.quiz.questions[quizState.currentQuestionIndex];
    final userAnswerIndex = currentQuestion.userAnswerIndex;
    // 初始化时检查是否已选择该选项
-   final currentOptionIndex = getCurrentIndex();
+   final currentOptionIndex = _getCurrentIndex();
    final isSelected = userAnswerIndex.contains(currentOptionIndex);
 
    return SizedBox(
@@ -146,7 +146,7 @@ class ChoiceOptionsContainer extends ConsumerWidget {
     );
   }
 
-  int getCurrentIndex() {
+  int _getCurrentIndex() {
     switch (option){
       case 'A':
         return 0;

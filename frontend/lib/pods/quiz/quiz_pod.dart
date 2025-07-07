@@ -7,10 +7,12 @@ part 'quiz_pod.g.dart';
 
 @riverpod
 class QuizNotifier extends _$QuizNotifier {
-  final Quiz quiz = Quiz(
+  final Quiz newQuiz = Quiz(
+    id: '',
     type: QuizType.randomTasks,
     questions: [
       Question(
+        id: '',
         questionText:
         "Which of the following formulas is logically equivalent to ¬(p ∨ q)?",
         options: ["¬p ∧ ¬q", "¬p ∨ ¬q", "p ∧ q", "p ∨ q"],
@@ -20,6 +22,7 @@ class QuizNotifier extends _$QuizNotifier {
         difficulty: QuestionDifficulty.easy,
       ),
       Question(
+        id: '',
         questionText: "What is the contrapositive of the implication p → q?",
         options: ["¬q → ¬p", "¬p → ¬q", "p ∨ q", "¬p ∨ q"],
         correctAnswerIndex: [0, 1],
@@ -28,6 +31,7 @@ class QuizNotifier extends _$QuizNotifier {
         difficulty: QuestionDifficulty.medium,
       ),
       Question(
+        id: '',
         questionText: "What is the contrapositive of the implication p → q?",
         options: ["True", "False"],
         correctAnswerIndex: [0],
@@ -37,12 +41,52 @@ class QuizNotifier extends _$QuizNotifier {
       ),
     ],
   );
+  final Quiz reviewQuiz = Quiz(
+    id: '',
+    type: QuizType.randomTasks,
+    correctQuestionsNum: 9,
+    completionTime: 1200,
+    questions: [
+      Question(
+        id: '',
+        questionText:
+        "Which of the following formulas is logically equivalent to ¬(p ∨ q)?",
+        options: ["¬p ∧ ¬q", "¬p ∨ ¬q", "p ∧ q", "p ∨ q"],
+        correctAnswerIndex: [0],
+        userAnswerIndex: [0],
+        type: QuestionType.singleChoice,
+        category: QuestionCategory.equivalence,
+        difficulty: QuestionDifficulty.easy,
+      ),
+      Question(
+        id: '',
+        questionText: "What is the contrapositive of the implication p → q?",
+        options: ["¬q → ¬p", "¬p → ¬q", "p ∨ q", "¬p ∨ q"],
+        correctAnswerIndex: [0, 1],
+        userAnswerIndex: [0, 1, 2],
+        type: QuestionType.multipleChoice,
+        category: QuestionCategory.equivalence,
+        difficulty: QuestionDifficulty.medium,
+      ),
+      Question(
+        id: '',
+        questionText: "What is the contrapositive of the implication p → q?",
+        options: ["True", "False"],
+        correctAnswerIndex: [0],
+        userAnswerIndex: [1],
+        type: QuestionType.trueFalse,
+        category: QuestionCategory.equivalence,
+        difficulty: QuestionDifficulty.medium,
+      ),
+    ],
+  );
+
 
   Timer? _timer;
 
   @override
   QuizNotifierModel build() {
-    return QuizNotifierModel(quiz: quiz);
+    return QuizNotifierModel(quiz: newQuiz);
   }
 
   void nextQuestion() {
@@ -105,7 +149,15 @@ class QuizNotifier extends _$QuizNotifier {
 
   void resetQuiz() {
     _timer?.cancel();
-    state = QuizNotifierModel(quiz: quiz);
+    state = QuizNotifierModel(quiz: newQuiz);
+  }
+
+  void getNewQuiz() {
+    state = QuizNotifierModel(quiz: newQuiz);
+  }
+
+  void getReviewQuiz() {
+    state = QuizNotifierModel(quiz: reviewQuiz);
   }
 }
 

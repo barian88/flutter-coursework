@@ -1,0 +1,54 @@
+import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
+import 'package:frontend/models/models.dart';
+import 'package:frontend/themes/themes.dart';
+
+class AnswerReview extends StatelessWidget {
+  const AnswerReview({
+    super.key,
+    required this.correctAnswerIndex,
+    required this.userAnswerIndex,
+    required this.questionType,
+  });
+
+  final List<int> correctAnswerIndex;
+  final List<int> userAnswerIndex;
+  final QuestionType questionType;
+
+  String _convertIndexesToLabels(List<int> indexes) {
+    if (questionType == QuestionType.trueFalse) {
+      const labels = ['True', 'False'];
+      return indexes.map((i) => labels[i]).join(', ');
+    } else {
+      const letters = ['A', 'B', 'C', 'D'];
+      return indexes.map((i) => letters[i]).join(', ');
+    }
+  }
+
+  bool _isCorrect() {
+    return ListEquality().equals(correctAnswerIndex, userAnswerIndex);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Correct Answers: ${_convertIndexesToLabels(correctAnswerIndex)}',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.green,
+          ),
+        ),
+        Text(
+          'Your Answers: ${_convertIndexesToLabels(userAnswerIndex)}',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: _isCorrect() ? theme.colorScheme.green : theme.colorScheme.red,
+          ),
+        ),
+      ],
+    );
+  }
+}

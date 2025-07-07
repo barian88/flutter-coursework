@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend/models/models.dart';
 import 'package:gap/gap.dart';
 import 'package:frontend/pods/pods.dart';
 
@@ -29,17 +30,17 @@ class QuestionArea extends ConsumerWidget {
         Row(
           children: [
             Chip(
-              label: Text(currentQuestion.type.name, style: theme.textTheme.bodySmall),
+              label: Text(currentQuestion.type.displayName, style: theme.textTheme.bodySmall),
               padding: EdgeInsets.all(0),
             ),
             Gap(8),
             Chip(
-              label: Text(currentQuestion.category.name, style: theme.textTheme.bodySmall),
+              label: Text(currentQuestion.category.displayName, style: theme.textTheme.bodySmall),
               padding: EdgeInsets.all(0),
             ),
             Gap(8),
             Chip(
-              label: Text(currentQuestion.difficulty.name, style: theme.textTheme.bodySmall),
+              label: Text(currentQuestion.difficulty.displayName, style: theme.textTheme.bodySmall),
               padding: EdgeInsets.all(0),
             ),
           ],

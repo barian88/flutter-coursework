@@ -9,7 +9,7 @@ class UserInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final User user = User(
-      id: 1,
+      id: '',
       name: "Ben",
       email: "gujianyang0808@gmail.com",
       profilePictureUrl: "assets/images/ava.jpg",

@@ -16,7 +16,7 @@ class RouteNotifier extends _$RouteNotifier {
   GoRouter build() {
     return GoRouter(
       navigatorKey: _rootNavigatorKey,
-      initialLocation: '/home',
+      initialLocation: '/history/quiz-review/123',
       routes: [
         ShellRoute(
           navigatorKey: _shellNavigatorKey,
@@ -31,9 +31,9 @@ class RouteNotifier extends _$RouteNotifier {
               routes: [
                 GoRoute(
                   parentNavigatorKey: _rootNavigatorKey,
-                  path: '/quiz',
+                  path: '/new-quiz',
                   builder: (context, state) {
-                    return const Quiz();
+                    return const NewQuiz();
                   },
                 ),
               ],
@@ -42,6 +42,15 @@ class RouteNotifier extends _$RouteNotifier {
               path: '/history',
               pageBuilder:
                   (context, state) => NoTransitionPage(child: const History()),
+              routes: [
+                GoRoute(
+                  parentNavigatorKey: _rootNavigatorKey,
+                  path: '/quiz-review/:quizId',
+                  builder: (context, state) {
+                    return const QuizReview();
+                  },
+                ),
+              ],
             ),
             GoRoute(
               path: '/guide',
