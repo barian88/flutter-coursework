@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../themes/themes.dart';
 import '../models/models.dart';
 
@@ -68,62 +69,67 @@ class HistoryCard extends StatelessWidget {
           }
         })();
 
-    return Container(
-      width: double.infinity,
-      height: 120,
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        border: Border.all(color: cardBorderColor),
-        borderRadius: AppRadii.medium,
-      ),
-      child: Row(
-        children: [
-          Container(
-            height: 120,
-            width: 120,
-            decoration: BoxDecoration(
-              gradient: backgroundGradient,
-              borderRadius: AppRadii.medium,
+    return GestureDetector(
+      onTap: () {
+        context.go('/history/quiz-review/${historyItem.id}');
+      },
+      child: Container(
+        width: double.infinity,
+        height: 120,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          border: Border.all(color: cardBorderColor),
+          borderRadius: AppRadii.medium,
+        ),
+        child: Row(
+          children: [
+            Container(
+              height: 120,
+              width: 120,
+              decoration: BoxDecoration(
+                gradient: backgroundGradient,
+                borderRadius: AppRadii.medium,
+              ),
+              child: Center(child: icon),
             ),
-            child: Center(child: icon),
-          ),
-          Gap(35),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  historyItem.type,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+            Gap(35),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    historyItem.type,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                Gap(6),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '${historyItem.correct}/10 Correct',
-                      style: TextStyle(
-                        color: theme.colorScheme.onSurfaceVariant,
+                  Gap(6),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '${historyItem.correct}/10 Correct',
+                        style: TextStyle(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                       ),
-                    ),
-                    Gap(5),
-                    Text('·'),
-                    Gap(5),
-                    Text(
-                      historyItem.time,
-                      style: TextStyle(
-                        color: theme.colorScheme.onSurfaceVariant,
+                      Gap(5),
+                      Text('·'),
+                      Gap(5),
+                      Text(
+                        historyItem.time,
+                        style: TextStyle(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

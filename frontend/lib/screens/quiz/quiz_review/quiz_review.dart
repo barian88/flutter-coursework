@@ -18,7 +18,7 @@ class _QuizReviewState extends ConsumerState<QuizReview> {
     super.initState();
     Future.microtask(() {
       final quizNotifier = ref.read(quizNotifierProvider.notifier);
-      quizNotifier.getReviewQuiz();
+      quizNotifier.loadQuizReview('mock-quiz-id');
     });
   }
 
@@ -26,10 +26,6 @@ class _QuizReviewState extends ConsumerState<QuizReview> {
   Widget build(BuildContext context) {
 
     final quizState = ref.watch(quizNotifierProvider);
-    final currentQuestion = quizState.quiz.questions[quizState.currentQuestionIndex];
-    final questionType = currentQuestion.type;
-    final userAnswerIndex = currentQuestion.userAnswerIndex;
-    final correctAnswerIndex = currentQuestion.correctAnswerIndex;
 
     return Scaffold(
       appBar: AppBar(
@@ -37,27 +33,44 @@ class _QuizReviewState extends ConsumerState<QuizReview> {
         centerTitle: true,
         actions: [ThemeModeSwitch(), const Gap(16)],
       ),
-      body: BaseContainer(
-        isScrollable: false,
-        child: Column(
-          children: [
-            QuizStat(),
-            const Gap(12),
-            QuizProgress(),
-            const Gap(30),
-            Expanded(flex: 4, child: QuestionArea()),
-            Divider(height: 0),
-            const Gap(10),
-            AnswerReview(correctAnswerIndex: correctAnswerIndex, userAnswerIndex: userAnswerIndex, questionType: questionType),
-            const Gap(10),
-            Expanded(
-              flex: 5,
-              child: Column(
-                children: [OptionArea(), Spacer(), OperationArea(), Gap(35)],
-              ),
+      body: quizState.when(
+        data: (state) {
+          if (state.quiz.questions.isEmpty) {
+            return const Center(
+              child: Text('No quiz data available'),
+            );
+          }
+          
+          final currentQuestion = state.quiz.questions[state.currentQuestionIndex];
+          final questionType = currentQuestion.type;
+          final userAnswerIndex = currentQuestion.userAnswerIndex;
+          final correctAnswerIndex = currentQuestion.correctAnswerIndex;
+
+          return BaseContainer(
+            isScrollable: false,
+            child: Column(
+              children: [
+                QuizStat(),
+                const Gap(12),
+                QuizProgress(),
+                const Gap(30),
+                Expanded(flex: 4, child: QuestionArea()),
+                Divider(height: 0),
+                const Gap(10),
+                AnswerReview(correctAnswerIndex: correctAnswerIndex, userAnswerIndex: userAnswerIndex, questionType: questionType),
+                const Gap(10),
+                Expanded(
+                  flex: 5,
+                  child: Column(
+                    children: [OptionArea(), Spacer(), OperationArea(), Gap(35)],
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stackTrace) => Center(child: Text('Error: $error')),
       ),
     );
   }

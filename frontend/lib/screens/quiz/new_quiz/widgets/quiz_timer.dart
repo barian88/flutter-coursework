@@ -28,14 +28,25 @@ class _QuizTimerState extends ConsumerState<QuizTimer> {
   Widget build(BuildContext context) {
 
     final quizState = ref.watch(quizNotifierProvider);
-
-    final time = quizState.quiz.completionTime;
-
     final theme = Theme.of(context);
 
-    return Text(TimeFormatterUtil.getFormattedTime(time), style: theme.textTheme.bodyMedium?.copyWith(
-        fontWeight: FontWeight.bold
-    ));
+    return quizState.when(
+      data: (state) {
+        final time = state.quiz.completionTime;
+        return Text(TimeFormatterUtil.getFormattedTime(time), 
+          style: theme.textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.bold
+          ));
+      },
+      loading: () => Text('--:--', 
+        style: theme.textTheme.bodyMedium?.copyWith(
+          fontWeight: FontWeight.bold
+        )),
+      error: (error, stackTrace) => Text('--:--', 
+        style: theme.textTheme.bodyMedium?.copyWith(
+          fontWeight: FontWeight.bold
+        )),
+    );
   }
 }
 

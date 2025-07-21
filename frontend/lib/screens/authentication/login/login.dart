@@ -7,6 +7,8 @@ import 'package:frontend/pods/pods.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'input_area.dart';
+import 'package:frontend/repositories/repositories.dart';
+import 'package:frontend/apis/apis.dart';
 
 class Login extends ConsumerWidget {
   const Login({super.key});
@@ -57,7 +59,7 @@ class Login extends ConsumerWidget {
             const Gap(40),
             FilledButton(
               onPressed: () {
-                handleLogin(context, loginState);
+                handleLogin(context, ref);
               },
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(double.infinity, 50),
@@ -102,23 +104,24 @@ class Login extends ConsumerWidget {
     );
   }
 
-  void handleLogin(BuildContext context, LoginNotifierModel loginState) {
+  void handleLogin(BuildContext context, WidgetRef ref) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
-    // 首先判断输入是否有效
-    if (loginState.email.isEmpty || loginState.password.isEmpty) {
+    final loginNotifier = ref.read(loginNotifierProvider.notifier);
+    
+    final result = await loginNotifier.login();
+    
+    if (result.isSuccess) {
+      // 登录成功，跳转到主页
+      if (context.mounted) {
+        context.go('/home');
+      }
+    } else {
+      // 显示错误信息
       scaffoldMessenger.clearSnackBars();
       scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text("Please fill in all fields")),
+        SnackBar(content: Text(result.errorMessage ?? 'Login failed')),
       );
-      return;
     }
-    // todo 调用API进行验证
-    // 如果验证失败， 显示错误信息
-    // scaffoldMessenger.clearSnackBars();
-    // scaffoldMessenger.showSnackBar(
-    //   SnackBar(content: Text("Email or password is incorrect")),
-    // );
-    // 如果验证成功，跳转到主页
   }
 
 

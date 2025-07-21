@@ -20,13 +20,17 @@ class Verification extends ConsumerStatefulWidget {
 }
 
 class _VerificationState extends ConsumerState<Verification> {
-  int remainingTime = 5;
+  int remainingTime = 60;
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
     _startCountDown();
+    // 推迟到build完成后执行
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _sendVerificationCode();
+    });
   }
 
   @override
@@ -46,6 +50,17 @@ class _VerificationState extends ConsumerState<Verification> {
         });
       }
     });
+  }
+
+  void _sendVerificationCode() async {
+    final verificationNotifier = ref.read(verificationNotifierProvider.notifier);
+    final result = await verificationNotifier.sendVerificationCode(widget.email);
+    
+    if (!result.isSuccess && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result.errorMessage ?? 'Failed to send verification code')),
+      );
+    }
   }
 
   @override
@@ -89,7 +104,13 @@ class _VerificationState extends ConsumerState<Verification> {
                       ? Align(
                         alignment: Alignment.center,
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            setState(() {
+                              remainingTime = 5;
+                            });
+                            _startCountDown();
+                            _sendVerificationCode();
+                          },
                           style: TextButton.styleFrom(
                             padding: EdgeInsets.symmetric(
                               horizontal: 10,
@@ -137,7 +158,7 @@ class _VerificationState extends ConsumerState<Verification> {
             const Gap(40),
             FilledButton(
               onPressed: () {
-                handleVerification(context, verificationState);
+                handleVerification(context, ref);
               },
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(double.infinity, 50),
@@ -156,41 +177,47 @@ class _VerificationState extends ConsumerState<Verification> {
     );
   }
 
-  void handleVerification(
-    BuildContext context,
-    VerificationNotifierModel verificationState,
-  ) {
+  void handleVerification(BuildContext context, WidgetRef ref) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
-    // 首先判断输入是否有效
-    if (verificationState.verificationCode.isEmpty) {
-      scaffoldMessenger.clearSnackBars();
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text("Please enter the OTP code.")),
-      );
-      return;
-    }
-    // todo 判断验证码是否正确
-    // 失败提示错误信息
-    // 成功后请求api，将信息存入数据库
+    final verificationNotifier = ref.read(verificationNotifierProvider.notifier);
 
-    // 如果是注册页面，跳转到登录页面
+
+    // 如果是注册页面，调用注册验证API，最后跳转到登陆页面
     if (widget.parentPage == 'register') {
-      context.go('/login');
-      scaffoldMessenger.clearSnackBars();
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text("Registration successful! Please log in.")),
-      );
+      final result = await verificationNotifier.verifyRegistration(widget.email);
+      if (result.isSuccess) {
+        scaffoldMessenger.clearSnackBars();
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text("Registration successful! Please sign in.")),
+        );
+        
+        if (context.mounted) {
+          context.go('/login');
+        }
+      } else {
+        scaffoldMessenger.clearSnackBars();
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text(result.errorMessage ?? "Verification failed")),
+        );
+      }
       return;
     }
-    // 如果是忘记密码 / 登陆页面，跳转到重置密码页面
-    else if (widget.parentPage == 'login') {
-      context.push('/change-password/${widget.email}');
+    
+    // 如果是忘记密码（登陆页面） / 修改密码（用户页面），验证完成后跳转到重置密码页面
+    else if (widget.parentPage == 'login' || widget.parentPage == 'user') {
+      final result = await verificationNotifier.verifyPasswordReset(widget.email);
+      if (result.isSuccess) {
+        if (context.mounted) {
+          context.push('/change-password/${result.temporaryToken}');
+        }
+      } else {
+        scaffoldMessenger.clearSnackBars();
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text(result.errorMessage ?? "Verification failed")),
+        );
+      }
       return;
     }
-    // 如果是修改密码 / 用户页面，跳转到重置密码页面
-    else if (widget.parentPage == 'user') {
-      context.push('/change-password/${widget.email}');
-      return;
-    }
+
   }
 }

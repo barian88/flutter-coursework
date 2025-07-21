@@ -14,14 +14,31 @@ class OperationArea extends ConsumerWidget {
 
     final theme = Theme.of(context);
 
-    final isFirst = quizState.currentQuestionIndex == 0;
-    final isLast =
-        quizState.currentQuestionIndex == quizState.quiz.questions.length - 1;
-    final backStatus = isFirst ? null : quizNotifier.previousQuestion;
-    final nextStatus =
-        isLast
-            ? null //todo 这里要改为submit
-            : quizNotifier.nextQuestion;
+    return quizState.when(
+      data: (state) {
+        final isFirst = state.currentQuestionIndex == 0;
+        final isLast =
+            state.currentQuestionIndex == state.quiz.questions.length - 1;
+        final backStatus = isFirst ? null : quizNotifier.previousQuestion;
+        final nextStatus =
+            isLast
+                ? null //todo 这里要改为submit
+                : quizNotifier.nextQuestion;
+
+        return _buildOperationArea(theme, isFirst, isLast, backStatus, nextStatus);
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stackTrace) => Center(child: Text('Error: $error')),
+    );
+  }
+
+  Widget _buildOperationArea(
+    ThemeData theme,
+    bool isFirst,
+    bool isLast,
+    VoidCallback? backStatus,
+    VoidCallback? nextStatus,
+  ) {
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

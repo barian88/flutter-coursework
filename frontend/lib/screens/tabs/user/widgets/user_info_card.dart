@@ -10,7 +10,7 @@ class UserInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final User user = User(
       id: '',
-      name: "Ben",
+      username: "Ben",
       email: "gujianyang0808@gmail.com",
       profilePictureUrl: "assets/images/ava.jpg",
     );
@@ -36,7 +36,7 @@ class UserInfoCard extends StatelessWidget {
                     Text('Username', style: TextStyle(color: textColor)),
                     Spacer(),
                     Text(
-                      user.name,
+                      user.username,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: textColor,

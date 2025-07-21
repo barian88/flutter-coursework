@@ -16,7 +16,7 @@ class RouteNotifier extends _$RouteNotifier {
   GoRouter build() {
     return GoRouter(
       navigatorKey: _rootNavigatorKey,
-      initialLocation: '/history/quiz-review/123',
+      initialLocation: '/register',
       routes: [
         ShellRoute(
           navigatorKey: _shellNavigatorKey,
@@ -85,11 +85,11 @@ class RouteNotifier extends _$RouteNotifier {
               },
         ),
         GoRoute(
-          path: '/change-password/:email',
+          path: '/change-password/:temporaryToken',
           pageBuilder:
               (context, state) {
-                final email = state.pathParameters['email'] ?? '';
-                return MaterialPage(child: ChangePassword(email: email));
+                final temporaryToken = state.pathParameters['temporaryToken'] ?? '';
+                return MaterialPage(child: ChangePassword(temporaryToken: temporaryToken));
               },
         ),
       ],

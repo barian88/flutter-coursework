@@ -7,15 +7,31 @@ import 'package:frontend/pods/pods.dart';
 import 'package:go_router/go_router.dart';
 import 'input_area.dart';
 
-class ChangePassword extends ConsumerWidget {
-  const ChangePassword({super.key, required this.email});
+class ChangePassword extends ConsumerStatefulWidget {
+  const ChangePassword({super.key, required this.temporaryToken});
 
-  final String email;
+  final String temporaryToken;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ChangePassword> createState() => _ChangePasswordState();
+}
 
+class _ChangePasswordState extends ConsumerState<ChangePassword> {
+  @override
+  void initState() {
+    super.initState();
+    // 推迟到build完成后执行
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(changePasswordNotifierProvider.notifier).update(
+        temporaryToken: widget.temporaryToken,
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final changePasswordState = ref.watch(changePasswordNotifierProvider);
+
 
     final theme = Theme.of(context);
 
@@ -38,7 +54,7 @@ class ChangePassword extends ConsumerWidget {
             const Gap(60),
             FilledButton(
               onPressed: () {
-                handleChangePassword(context, changePasswordState);
+                _handleChangePassword(context);
               },
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(double.infinity, 50),
@@ -57,41 +73,26 @@ class ChangePassword extends ConsumerWidget {
     );
   }
 
-  void handleChangePassword(BuildContext context, ChangePasswordNotifierModel changePasswordState) {
-
+  void _handleChangePassword(BuildContext context) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
-    //首先检查两个密码是否为空
-    if (changePasswordState.password.isEmpty || changePasswordState.confirmPassword.isEmpty) {
-      scaffoldMessenger.clearSnackBars();
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text('Please fill in both password fields')),
-      );
-      return;
-    }
-    // 检查两个密码是否匹配
-    if (changePasswordState.password != changePasswordState.confirmPassword) {
-      scaffoldMessenger.clearSnackBars();
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text('Passwords do not match')),
-      );
-      return;
-    }
-    // 判断密码长度
-    if (changePasswordState.password.length < 6 ||
-        changePasswordState.password.length > 20) {
-      scaffoldMessenger.clearSnackBars();
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text('Password must be between 6 and 20 characters')),
-      );
-      return;
-    }
-    // 如果所有检查都通过，执行密码更改逻辑
-    // todo 调用API进行密码更改
+    final changePasswordNotifier = ref.read(changePasswordNotifierProvider.notifier);
+
+    final result = await changePasswordNotifier.resetPassword();
     // 成功后提示用户密码更改成功
-    scaffoldMessenger.clearSnackBars();
-    scaffoldMessenger.showSnackBar(
-      SnackBar(content: Text('Password changed successfully, please sign in again')),
-    );
-    context.go('/login');
+    if(result.isSuccess){
+      scaffoldMessenger.clearSnackBars();
+      scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text('Password changed successfully, please sign in again')),
+      );
+      context.go('/login');
+    }else {
+      // 显示错误信息
+      scaffoldMessenger.clearSnackBars();
+      scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text(result.errorMessage ?? 'Reset password failed')),
+      );
+    }
+
+
   }
 }

@@ -44,6 +44,50 @@ class Question {
     );
   }
 
+  // JSON 序列化支持
+  factory Question.fromJson(Map<String, dynamic> json) => Question(
+    id: json['id'] ?? '',
+    questionText: json['questionText'] ?? '',
+    options: List<String>.from(json['options'] ?? []),
+    correctAnswerIndex: List<int>.from(json['correctAnswerIndex'] ?? []),
+    userAnswerIndex: List<int>.from(json['userAnswerIndex'] ?? []),
+    type: QuestionType.values.firstWhere(
+      (e) => e.name == json['type'],
+      orElse: () => QuestionType.singleChoice,
+    ),
+    category: QuestionCategory.values.firstWhere(
+      (e) => e.name == json['category'],
+      orElse: () => QuestionCategory.truthTable,
+    ),
+    difficulty: QuestionDifficulty.values.firstWhere(
+      (e) => e.name == json['difficulty'],
+      orElse: () => QuestionDifficulty.easy,
+    ),
+  );
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'questionText': questionText,
+    'options': options,
+    'correctAnswerIndex': correctAnswerIndex,
+    'userAnswerIndex': userAnswerIndex,
+    'type': type.name,
+    'category': category.name,
+    'difficulty': difficulty.name,
+  };
+
+  // 便利方法
+  bool get isAnswered => userAnswerIndex.isNotEmpty;
+  
+  bool get isCorrect {
+    if (!isAnswered) return false;
+    
+    // 检查用户答案是否与正确答案完全匹配
+    final userSet = Set<int>.from(userAnswerIndex);
+    final correctSet = Set<int>.from(correctAnswerIndex);
+    return userSet.length == correctSet.length && userSet.containsAll(correctSet);
+  }
+
 }
 
 enum QuestionType {

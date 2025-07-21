@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/widgets/widgets.dart';
 import 'package:frontend/themes/themes.dart';
-import 'package:frontend/utils/utils.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend/pods/pods.dart';
@@ -40,7 +39,7 @@ class Register extends ConsumerWidget {
             FilledButton(
               onPressed: () {
                 // Handle register action
-                handleRegister(context, registerState);
+                handleRegister(context, ref);
               },
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(double.infinity, 50),
@@ -85,51 +84,24 @@ class Register extends ConsumerWidget {
     );
   }
 
-  void handleRegister(
-    BuildContext context,
-    RegisterNotifierModel registerState,
-  ) {
+  void handleRegister(BuildContext context, WidgetRef ref) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
-
-    // 首先判断输入是否有效
-    if (registerState.username.isEmpty ||
-        registerState.email.isEmpty ||
-        registerState.password.isEmpty) {
+    final registerNotifier = ref.read(registerNotifierProvider.notifier);
+    final registerState = ref.read(registerNotifierProvider);
+    
+    final result = await registerNotifier.sendRegisterRequest();
+    
+    if (result.isSuccess) {
+      // 注册成功，跳转到验证页面
+      if (context.mounted) {
+        context.push('/verification/register/${registerState.email}');
+      }
+    } else {
+      // 显示错误信息
       scaffoldMessenger.clearSnackBars();
       scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text('Please fill in all fields')),
+        SnackBar(content: Text(result.errorMessage ?? 'Registration failed')),
       );
-      return;
     }
-    // 判断邮箱格式
-    if (!EmailUtil.isValidEmail(registerState.email)) {
-      scaffoldMessenger.clearSnackBars();
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text('Please enter a valid email')),
-      );
-      return;
-    }
-    // 判断密码长度
-    if (registerState.password.length < 6 ||
-        registerState.password.length > 20) {
-      scaffoldMessenger.clearSnackBars();
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text('Password must be between 6 and 20 characters')),
-      );
-      return;
-    }
-    // 判断密码是否一致
-    if (registerState.password != registerState.confirmPassword) {
-      scaffoldMessenger.clearSnackBars();
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text('Passwords do not match')),
-      );
-      return;
-    }
-    // 如果所有输入都有效，执行注册逻辑
-    //todo : 调用注册API,发送验证码
-
-    // 跳转到验证页面
-    context.push("/verification/register/${registerState.email}");
   }
 }

@@ -11,64 +11,70 @@ class OptionArea extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     final quizState = ref.watch(quizNotifierProvider);
-    final quizNotifier = ref.read(quizNotifierProvider.notifier);
 
-    final currentQuestion = quizState.quiz.questions[quizState.currentQuestionIndex];
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final maxWidth = constraints.maxWidth;
-        if(currentQuestion.type == QuestionType.trueFalse){
-          return Column(
-            children: [
-              ChoiceOptionsContainer(
-                option: 'True',
-                maxWidth: maxWidth,
-              ),
-              Gap(20),
-              ChoiceOptionsContainer(
-                option: 'False',
-                maxWidth: maxWidth,
-              ),
-            ],
-          );
-        }
-        else{
-          return Row(
-            children: [
-              Column(
+    return quizState.when(
+      data: (state) {
+        final currentQuestion = state.quiz.questions[state.currentQuestionIndex];
+        
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final maxWidth = constraints.maxWidth;
+            if(currentQuestion.type == QuestionType.trueFalse){
+              return Column(
                 children: [
                   ChoiceOptionsContainer(
-                    option: 'A',
+                    option: 'True',
                     maxWidth: maxWidth,
                   ),
                   Gap(20),
                   ChoiceOptionsContainer(
-                    option: 'C',
+                    option: 'False',
                     maxWidth: maxWidth,
                   ),
                 ],
-              ),
-              Gap(20),
-              Column(
+              );
+            }
+            else{
+              return Row(
                 children: [
-                  ChoiceOptionsContainer(
-                    option: 'B',
-                    maxWidth: maxWidth,
+                  Column(
+                    children: [
+                      ChoiceOptionsContainer(
+                        option: 'A',
+                        maxWidth: maxWidth,
+                      ),
+                      Gap(20),
+                      ChoiceOptionsContainer(
+                        option: 'C',
+                        maxWidth: maxWidth,
+                      ),
+                    ],
                   ),
                   Gap(20),
-                  ChoiceOptionsContainer(
-                    option: 'D',
-                    maxWidth: maxWidth,
+                  Column(
+                    children: [
+                      ChoiceOptionsContainer(
+                        option: 'B',
+                        maxWidth: maxWidth,
+                      ),
+                      Gap(20),
+                      ChoiceOptionsContainer(
+                        option: 'D',
+                        maxWidth: maxWidth,
+                      ),
+                    ],
                   ),
                 ],
-              ),
-            ],
-          );
-        }
+              );
+            }
+          },
+        );
       },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => Center(
+        child: Text('Error: $error'),
+      ),
     );
   }
 }
@@ -86,46 +92,55 @@ class ChoiceOptionsContainer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final quizState = ref.watch(quizNotifierProvider);
-    final currentQuestion = quizState.quiz.questions[quizState.currentQuestionIndex];
-    final userAnswerIndex = currentQuestion.userAnswerIndex;
-    final correctAnswerIndex = currentQuestion.correctAnswerIndex;
 
-    final currentOptionIndex = _getCurrentIndex();
+    return quizState.when(
+      data: (state) {
+        final currentQuestion = state.quiz.questions[state.currentQuestionIndex];
+        final userAnswerIndex = currentQuestion.userAnswerIndex;
+        final correctAnswerIndex = currentQuestion.correctAnswerIndex;
 
-    // 判断当前选项颜色
-    final theme = Theme.of(context);
-    Color backgroundColor;
-    if (correctAnswerIndex.contains(currentOptionIndex)) {
-      backgroundColor = theme.colorScheme.green;
-    } else if (userAnswerIndex.contains(currentOptionIndex)) {
-      backgroundColor = theme.colorScheme.red;
-    } else {
-      backgroundColor = Colors.grey;
-    }
+        final currentOptionIndex = _getCurrentIndex();
 
-    return SizedBox(
-      width: currentQuestion.type == QuestionType.trueFalse
-          ? maxWidth
-          : (maxWidth - 20) / 2,
-      child: AspectRatio(
-        aspectRatio: currentQuestion.type == QuestionType.trueFalse ? 4 : 1.6,
-        child: Container(
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: AppRadii.medium,
-            border: Border.all(color: Colors.grey.withAlpha(64), width: 1),
-          ),
-          child: Center(
-            child: Text(
-              option,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+        // 判断当前选项颜色
+        final theme = Theme.of(context);
+        Color backgroundColor;
+        if (correctAnswerIndex.contains(currentOptionIndex)) {
+          backgroundColor = theme.colorScheme.green;
+        } else if (userAnswerIndex.contains(currentOptionIndex)) {
+          backgroundColor = theme.colorScheme.red;
+        } else {
+          backgroundColor = Colors.grey;
+        }
+
+        return SizedBox(
+          width: currentQuestion.type == QuestionType.trueFalse
+              ? maxWidth
+              : (maxWidth - 20) / 2,
+          child: AspectRatio(
+            aspectRatio: currentQuestion.type == QuestionType.trueFalse ? 4 : 1.6,
+            child: Container(
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: AppRadii.medium,
+                border: Border.all(color: Colors.grey.withAlpha(64), width: 1),
+              ),
+              child: Center(
+                child: Text(
+                  option,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ),
           ),
-        ),
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => Center(
+        child: Text('Error: $error'),
       ),
     );
   }

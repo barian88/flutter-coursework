@@ -1,30 +1,63 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import '../../../widgets/widgets.dart';
+import '../../../pods/history/history_pod.dart';
+import '../../../utils/utils.dart';
+import '../../../models/models.dart';
 import 'widgets/widgets.dart';
 import 'models/models.dart';
 
-class History extends StatelessWidget {
+class History extends ConsumerStatefulWidget {
   const History({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final historyList = [
-      HistoryItem(type: "Random Tasks", correct: 8, time: "4m12s"),
-      HistoryItem(type: "Topic Practice", correct: 8, time: "4m12s"),
-      HistoryItem(type: "By Difficulty", correct: 8, time: "4m12s"),
-      HistoryItem(type: "Custom Quiz", correct: 8, time: "4m12s"),
-      HistoryItem(type: "Custom Quiz", correct: 8, time: "4m12s"),
-      HistoryItem(type: "Random Tasks", correct: 8, time: "4m12s"),
-      HistoryItem(type: "Topic Practice", correct: 8, time: "4m12s"),
-      HistoryItem(type: "By Difficulty", correct: 8, time: "4m12s"),
+  ConsumerState<History> createState() => _HistoryState();
+}
 
-    ];
-    final cardList = List.generate(historyList.length, (index) {
-      final item = historyList[index];
-      return Column(children: [HistoryCard(historyItem: item, index: index,), Gap(30)]);
+class _HistoryState extends ConsumerState<History> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      ref.read(historyNotifierProvider.notifier).loadAllHistory();
     });
+  }
 
-    return BaseContainer(child: Column(children: cardList));
+  @override
+  Widget build(BuildContext context) {
+    final historyState = ref.watch(historyNotifierProvider);
+
+    return BaseContainer(
+      child: historyState.when(
+        data: (quizzes) {
+          if (quizzes.isEmpty) {
+            return const Center(
+              child: Text('No quiz history available'),
+            );
+          }
+          
+          final cardList = List.generate(quizzes.length, (index) {
+            final quiz = quizzes[index];
+            final historyItem = HistoryItem(
+              id: quiz.id,
+              type: quiz.type.displayName,
+              correct: quiz.correctQuestionsNum,
+              time: TimeFormatterUtil.getFormattedTime(quiz.completionTime),
+            );
+            return Column(
+              children: [
+                HistoryCard(historyItem: historyItem, index: index),
+                const Gap(30),
+              ],
+            );
+          });
+
+          return Column(children: cardList);
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stackTrace) => Center(child: Text('Error: $error')),
+      ),
+    );
   }
 }

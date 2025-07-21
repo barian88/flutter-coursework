@@ -13,10 +13,18 @@ class OptionArea extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
 
     final quizState = ref.watch(quizNotifierProvider);
-    final quizNotifier = ref.read(quizNotifierProvider.notifier);
 
-    final currentQuestion = quizState.quiz.questions[quizState.currentQuestionIndex];
+    return quizState.when(
+      data: (state) {
+        final currentQuestion = state.quiz.questions[state.currentQuestionIndex];
+        return _buildOptionArea(context, currentQuestion);
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stackTrace) => Center(child: Text('Error: $error')),
+    );
+  }
 
+  Widget _buildOptionArea(BuildContext context, Question currentQuestion) {
     final theme = Theme.of(context);
 
     final choiceColors = [
@@ -106,13 +114,16 @@ class ChoiceOptionsContainer extends ConsumerWidget {
 
    final quizState = ref.watch(quizNotifierProvider);
    final quizNotifier = ref.read(quizNotifierProvider.notifier);
-   final currentQuestion = quizState.quiz.questions[quizState.currentQuestionIndex];
-   final userAnswerIndex = currentQuestion.userAnswerIndex;
-   // 初始化时检查是否已选择该选项
-   final currentOptionIndex = _getCurrentIndex();
-   final isSelected = userAnswerIndex.contains(currentOptionIndex);
 
-   return SizedBox(
+   return quizState.when(
+     data: (state) {
+       final currentQuestion = state.quiz.questions[state.currentQuestionIndex];
+       final userAnswerIndex = currentQuestion.userAnswerIndex;
+       // 初始化时检查是否已选择该选项
+       final currentOptionIndex = _getCurrentIndex();
+       final isSelected = userAnswerIndex.contains(currentOptionIndex);
+
+       return SizedBox(
       width: currentQuestion.type == QuestionType.trueFalse ? maxWidth : (maxWidth - 20) / 2,
       child: AspectRatio(
         aspectRatio: currentQuestion.type == QuestionType.trueFalse ? 4 : 1.6,
@@ -144,6 +155,10 @@ class ChoiceOptionsContainer extends ConsumerWidget {
         ),
       ),
     );
+     },
+     loading: () => const SizedBox.shrink(),
+     error: (error, stackTrace) => const SizedBox.shrink(),
+   );
   }
 
   int _getCurrentIndex() {

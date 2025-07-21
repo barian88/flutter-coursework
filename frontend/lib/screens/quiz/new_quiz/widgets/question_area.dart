@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:frontend/models/models.dart';
 import 'package:gap/gap.dart';
 import 'package:frontend/pods/pods.dart';
+import 'package:frontend/models/models.dart';
 
 
 class QuestionArea extends ConsumerWidget {
@@ -12,11 +12,19 @@ class QuestionArea extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
 
     final quizState = ref.watch(quizNotifierProvider);
-    final currentQuestion = quizState.quiz.questions[quizState.currentQuestionIndex];
-
     final theme = Theme.of(context);
 
+    return quizState.when(
+      data: (state) {
+        final currentQuestion = state.quiz.questions[state.currentQuestionIndex];
+        return _buildQuestionArea(context, theme, currentQuestion);
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stackTrace) => Center(child: Text('Error: $error')),
+    );
+  }
 
+  Widget _buildQuestionArea(BuildContext context, ThemeData theme, Question currentQuestion) {
     // This should be replaced with the actual options data
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

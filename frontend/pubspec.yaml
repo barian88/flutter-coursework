@@ -23,6 +23,7 @@ dependencies:
   percent_indicator: ^4.2.5
   pin_code_fields: ^8.0.1
   collection: ^1.18.0
+  shared_preferences: ^2.5.3
 
 
 dev_dependencies:

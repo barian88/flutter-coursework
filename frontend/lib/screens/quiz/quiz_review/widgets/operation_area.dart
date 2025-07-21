@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/pods/pods.dart';
-import 'package:frontend/themes/light_dark_theme.dart';
 import 'package:gap/gap.dart';
 
 class OperationArea extends ConsumerWidget {
@@ -11,19 +10,20 @@ class OperationArea extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final quizState = ref.watch(quizNotifierProvider);
     final quizNotifier = ref.read(quizNotifierProvider.notifier);
-
     final theme = Theme.of(context);
 
-    final isFirst = quizState.currentQuestionIndex == 0;
-    final isLast =
-        quizState.currentQuestionIndex == quizState.quiz.questions.length - 1;
-    final backStatus = isFirst ? null : quizNotifier.previousQuestion;
-    final nextStatus =
-        isLast
-            ? null
-            : quizNotifier.nextQuestion;
+    return quizState.when(
+      data: (state) {
+        final isFirst = state.currentQuestionIndex == 0;
+        final isLast =
+            state.currentQuestionIndex == state.quiz.questions.length - 1;
+        final backStatus = isFirst ? null : quizNotifier.previousQuestion;
+        final nextStatus =
+            isLast
+                ? null
+                : quizNotifier.nextQuestion;
 
-    return Row(
+        return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         ElevatedButton(
@@ -53,6 +53,10 @@ class OperationArea extends ConsumerWidget {
           ),
         ),
       ],
+    );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stackTrace) => Center(child: Text('Error: $error')),
     );
   }
 }

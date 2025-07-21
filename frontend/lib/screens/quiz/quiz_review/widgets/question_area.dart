@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:frontend/models/models.dart';
 import 'package:gap/gap.dart';
 import 'package:frontend/pods/pods.dart';
+import 'package:frontend/models/models.dart';
 
 
 class QuestionArea extends ConsumerWidget {
@@ -10,51 +10,56 @@ class QuestionArea extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     final quizState = ref.watch(quizNotifierProvider);
-    final currentQuestion = quizState.quiz.questions[quizState.currentQuestionIndex];
-
     final theme = Theme.of(context);
 
-
-    // This should be replaced with the actual options data
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Question",
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Row(
+    return quizState.when(
+      data: (state) {
+        final currentQuestion = state.quiz.questions[state.currentQuestionIndex];
+        
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Chip(
-              label: Text(currentQuestion.type.displayName, style: theme.textTheme.bodySmall),
-              padding: EdgeInsets.all(0),
+            Text(
+              "Question",
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Row(
+              children: [
+                Chip(
+                  label: Text(currentQuestion.type.displayName, style: theme.textTheme.bodySmall),
+                  padding: EdgeInsets.all(0),
+                ),
+                Gap(8),
+                Chip(
+                  label: Text(currentQuestion.category.displayName, style: theme.textTheme.bodySmall),
+                  padding: EdgeInsets.all(0),
+                ),
+                Gap(8),
+                Chip(
+                  label: Text(currentQuestion.difficulty.displayName, style: theme.textTheme.bodySmall),
+                  padding: EdgeInsets.all(0),
+                ),
+              ],
             ),
             Gap(8),
-            Chip(
-              label: Text(currentQuestion.category.displayName, style: theme.textTheme.bodySmall),
-              padding: EdgeInsets.all(0),
+            Text(
+              currentQuestion.questionText,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            Gap(8),
-            Chip(
-              label: Text(currentQuestion.difficulty.displayName, style: theme.textTheme.bodySmall),
-              padding: EdgeInsets.all(0),
-            ),
+            Gap(16),
+            ...getOptionWidgets(currentQuestion.options, theme),
           ],
-        ),
-        Gap(8),
-        Text(
-          currentQuestion.questionText,
-          style: theme.textTheme.bodyLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Gap(16),
-        ...getOptionWidgets(currentQuestion.options, theme),
-      ],
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => Center(
+        child: Text('Error: $error'),
+      ),
     );
   }
 }

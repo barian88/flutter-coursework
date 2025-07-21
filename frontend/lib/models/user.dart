@@ -1,27 +1,42 @@
 class User {
   final String id;
-  final String name;
+  final String username;
   final String email;
   final String profilePictureUrl;
 
   User({
     required this.id,
-    required this.name,
+    required this.username,
     required this.email,
     required this.profilePictureUrl,
   });
 
   User copyWith({
     String? id,
-    String? name,
+    String? username,
     String? email,
     String? profilePictureUrl,
   }) {
     return User(
       id: id ?? this.id,
-      name: name ?? this.name,
+      username: username ?? this.username,
       email: email ?? this.email,
       profilePictureUrl: profilePictureUrl ?? this.profilePictureUrl,
     );
   }
+
+  // JSON 序列化支持
+  factory User.fromJson(Map<String, dynamic> json) => User(
+    id: json['_id'] ?? json['id'] ?? '', // 兼容MongoDB的_id字段
+    username: json['username'] ?? '',
+    email: json['email'] ?? '',
+    profilePictureUrl: json['profilePictureUrl'] ?? '',
+  );
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'username': username,
+    'email': email,
+    'profilePictureUrl': profilePictureUrl,
+  };
 }
