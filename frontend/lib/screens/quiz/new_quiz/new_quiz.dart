@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/widgets/widgets.dart';
 import 'package:frontend/pods/pods.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'widgets/widgets.dart';
+import 'package:frontend/models/models.dart';
 
 class NewQuiz extends ConsumerStatefulWidget {
   const NewQuiz({super.key});
@@ -17,8 +19,9 @@ class _NewQuizState extends ConsumerState<NewQuiz> {
   void initState() {
     super.initState();
     Future.microtask(() {
+      final (category, difficulty) = _parseQueryParameters();
       final quizNotifier = ref.read(quizNotifierProvider.notifier);
-      quizNotifier.loadNewQuiz();
+      quizNotifier.loadNewQuiz(category: category?.name, difficulty: difficulty?.name);
     });
   }
 
@@ -76,5 +79,37 @@ class _NewQuizState extends ConsumerState<NewQuiz> {
         ),
       ),
     );
+  }
+
+  (QuestionCategory?, QuestionDifficulty?) _parseQueryParameters() {
+    // 获取查询参数
+    final state = GoRouterState.of(context);
+    final categoryParam = state.uri.queryParameters['category'];
+    final difficultyParam = state.uri.queryParameters['difficulty'];
+    // 转换为对应的enum类型（如果参数存在）
+    QuestionCategory? category;
+    QuestionDifficulty? difficulty;
+
+    if (categoryParam != null) {
+      // 根据displayName找到对应的enum
+      for (var cat in QuestionCategory.values) {
+        if (cat.displayName == categoryParam) {
+          category = cat;
+          break;
+        }
+      }
+    }
+
+    if (difficultyParam != null) {
+      // 根据displayName找到对应的enum
+      for (var diff in QuestionDifficulty.values) {
+        if (diff.displayName == difficultyParam) {
+          difficulty = diff;
+          break;
+        }
+      }
+    }
+
+    return (category, difficulty);
   }
 }

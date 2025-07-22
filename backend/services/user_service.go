@@ -26,11 +26,10 @@ func NewUserService(verificationService *VerificationService) *UserService {
 	return &UserService{
 		// 获取users集合的引用，用于数据库操作
 		collection:          database.GetCollection(database.UsersCollection),
-		pendingCollection:   database.GetCollection("pending_registrations"),
+		pendingCollection:   database.GetCollection(database.PendingUsersCollection),
 		verificationService: verificationService,
 	}
 }
-
 
 // GetUserByEmail 根据邮箱查找用户 - 主要用于登录验证
 func (s *UserService) GetUserByEmail(email string) (*models.User, error) {
@@ -234,10 +233,10 @@ func (s *UserService) UpdatePassword(email, newPassword string) error {
 	}
 
 	// 3. 更新密码
-	_, err = s.collection.UpdateOne(ctx, 
-		bson.M{"email": email}, 
+	_, err = s.collection.UpdateOne(ctx,
+		bson.M{"email": email},
 		bson.M{"$set": bson.M{
-			"password": hashedPassword,
+			"password":   hashedPassword,
 			"updated_at": time.Now(),
 		}},
 	)

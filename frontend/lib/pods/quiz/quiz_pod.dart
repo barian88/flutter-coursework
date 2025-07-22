@@ -27,7 +27,7 @@ class QuizNotifier extends _$QuizNotifier {
     int? questionCount,
   }) async {
     state = const AsyncValue.loading();
-    
+
     try {
       final repository = ref.read(quizRepositoryProvider);
       
@@ -245,6 +245,5 @@ class QuizState {
 enum QuizStatus {
   initial,
   active,
-  review,
-  completed,
+  review
 }

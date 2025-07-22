@@ -57,7 +57,9 @@ func GetCollection(collectionName string) *mongo.Collection {
 // 定义所有集合名称常量
 // 使用常量可以避免在代码中硬编码集合名称，减少拼写错误
 const (
-	UsersCollection     = "users"     // 用户集合 - 存储用户账户信息
-	QuestionsCollection = "questions" // 题目集合 - 存储测验题目
-	QuizzesCollection   = "quizzes"   // 测验集合 - 存储测验记录和结果
+	UsersCollection          = "users"                 // 用户集合 - 存储用户账户信息
+	QuestionsCollection      = "questions"             // 题目集合 - 存储测验题目
+	QuizzesCollection        = "quizzes"               // 测验集合 - 存储测验记录和结果
+	PendingUsersCollection   = "pending_registrations" // 待注册用户集合 - 存储未完成注册的用户信息
+	PendingQuizzesCollection = "pending_quizzes"       // 待处理测验集合 - 存储未完成的测验记录
 )

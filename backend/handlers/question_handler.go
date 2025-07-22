@@ -3,11 +3,9 @@ package handlers
 import (
 	"backend/models"
 	"backend/services"
-	"net/http"
-	"strconv"
-
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"net/http"
 )
 
 type QuestionHandler struct {
@@ -20,6 +18,7 @@ func NewQuestionHandler(questionService *services.QuestionService) *QuestionHand
 	}
 }
 
+// CreateQuestion 向题库中增加题目
 func (h *QuestionHandler) CreateQuestion(c *gin.Context) {
 	var req models.CreateQuestionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -36,6 +35,7 @@ func (h *QuestionHandler) CreateQuestion(c *gin.Context) {
 	c.JSON(http.StatusCreated, question)
 }
 
+// GetQuestionsByCategory 根据id获取题目
 func (h *QuestionHandler) GetQuestion(c *gin.Context) {
 	questionID, err := primitive.ObjectIDFromHex(c.Param("id"))
 	if err != nil {
@@ -50,43 +50,4 @@ func (h *QuestionHandler) GetQuestion(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, question)
-}
-
-func (h *QuestionHandler) GetQuestionsByCategory(c *gin.Context) {
-	category := c.Param("category")
-	questions, err := h.questionService.GetQuestionsByCategory(category)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"questions": questions})
-}
-
-func (h *QuestionHandler) GetQuestionsByDifficulty(c *gin.Context) {
-	difficulty := c.Param("difficulty")
-	questions, err := h.questionService.GetQuestionsByDifficulty(difficulty)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"questions": questions})
-}
-
-func (h *QuestionHandler) GetRandomQuestions(c *gin.Context) {
-	countStr := c.DefaultQuery("count", "10")
-	count, err := strconv.Atoi(countStr)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid count parameter"})
-		return
-	}
-
-	questions, err := h.questionService.GetRandomQuestions(count)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"questions": questions})
 }

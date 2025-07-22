@@ -1,8 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend/models/models.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../../../pods/pods.dart';
 import '../../../../themes/themes.dart';
 
 class QuizButtonContainer extends ConsumerWidget {
@@ -19,7 +19,6 @@ class QuizButtonContainer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     final theme = Theme.of(context);
     final gradient =
         index % 2 == 0
@@ -41,10 +40,13 @@ class QuizButtonContainer extends ConsumerWidget {
               context.push('/home/new-quiz');
               break;
             case 1:
+              _showPicker(context, QuizType.topicPractice);
               break;
             case 2:
+              _showPicker(context, QuizType.byDifficulty);
               break;
             case 3:
+              _showPicker(context, QuizType.customQuiz);
               break;
           }
         },
@@ -57,6 +59,103 @@ class QuizButtonContainer extends ConsumerWidget {
               child: Center(child: Text(emoji, style: TextStyle(fontSize: 46))),
             ),
             SizedBox(height: 40, child: Center(child: Text(title))),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showPicker(BuildContext context, QuizType quizType) {
+    final topicList = [
+      QuestionCategory.truthTable.displayName.toString(),
+      QuestionCategory.equivalence.displayName.toString(),
+      QuestionCategory.inference.displayName.toString(),
+    ];
+    final difficultyList = [
+      QuestionDifficulty.easy.displayName.toString(),
+      QuestionDifficulty.medium.displayName.toString(),
+      QuestionDifficulty.hard.displayName.toString(),
+    ];
+
+    // 根据不同的type显示不同的选项
+    int selectedIndexTopic = 0;
+    int selectedIndexDifficulty = 0;
+
+    final Widget picker;
+
+    switch (quizType) {
+      case QuizType.topicPractice:
+        picker = CupertinoPicker(
+          itemExtent: 45,
+          onSelectedItemChanged: (index) {
+            selectedIndexTopic = index;
+          },
+          children: topicList.map((e) => Center(child: Text((e)))).toList(),
+        );
+        break;
+      case QuizType.byDifficulty:
+        picker = CupertinoPicker(
+          itemExtent: 45,
+          onSelectedItemChanged: (index) {
+            selectedIndexDifficulty = index;
+          },
+          children: difficultyList.map((e) => Center(child: Text((e)))).toList(),
+        );
+        break;
+      case QuizType.customQuiz:
+        picker = Row(
+          children: [
+            Expanded(child: CupertinoPicker(
+              itemExtent: 45,
+              onSelectedItemChanged: (index) {
+                selectedIndexTopic = index;
+              },
+              children: topicList.map((e) => Center(child: Text((e)))).toList(),
+            )),
+            Expanded(child: CupertinoPicker(
+              itemExtent: 45,
+              onSelectedItemChanged: (index) {
+                selectedIndexDifficulty = index;
+              },
+              children: difficultyList.map((e) => Center(child: Text((e)))).toList(),
+            ))
+          ],
+        );
+        break;
+      default:
+        picker = Center(child: Text('Unsupported quiz type'));
+        break;
+    }
+
+
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => SizedBox(
+        height: 250,
+        child: Column(
+          children: [
+            CupertinoButton(
+              child: Text('OK'),
+              onPressed: () {
+                switch (quizType) {
+                  case QuizType.topicPractice:
+                    context.push('/home/new-quiz?category=${topicList[selectedIndexTopic]}');
+                    break;
+                    case QuizType.byDifficulty:
+                    context.push('/home/new-quiz?difficulty=${difficultyList[selectedIndexDifficulty]}');
+                    break;
+                  case QuizType.customQuiz:
+                    context.push('/home/new-quiz?category=${topicList[selectedIndexTopic]}&difficulty=${difficultyList[selectedIndexDifficulty]}');
+                    break;
+                  default:
+                    context.push('home/new-quiz');
+                    break;
+                }
+              },
+            ),
+            Expanded(
+              child: picker,
+            ),
           ],
         ),
       ),

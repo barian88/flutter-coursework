@@ -1,46 +1,74 @@
 package services
 
 import (
+	"backend/database"
 	"backend/models"
+	"context"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"time"
 )
 
 type QuestionService struct {
-	// TODO: 添加数据库连接
+	collection *mongo.Collection
 }
 
 func NewQuestionService() *QuestionService {
-	return &QuestionService{}
+	return &QuestionService{
+		collection: database.GetCollection(database.QuestionsCollection),
+	}
 }
 
-func (s *QuestionService) CreateQuestion(req *models.CreateQuestionRequest) (*models.QuestionResponse, error) {
+func (s *QuestionService) CreateQuestion(req *models.CreateQuestionRequest) (*models.Question, error) {
 	// TODO: 实现题目创建逻辑
 	return nil, nil
 }
 
-func (s *QuestionService) GetQuestionByID(questionID primitive.ObjectID) (*models.QuestionResponse, error) {
+func (s *QuestionService) GetQuestionByID(questionID primitive.ObjectID) (*models.Question, error) {
 	// TODO: 根据ID获取题目
 	return nil, nil
 }
 
-func (s *QuestionService) GetQuestionsByCategory(category string) ([]models.QuestionResponse, error) {
-	// TODO: 根据分类获取题目列表
-	return nil, nil
-}
+// GetRandomQuestions 根据category difficulty获取10个题目，用来创建quiz
+func (s *QuestionService) GetRandomQuestions(category string, difficulty string, count int) ([]models.Question, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-func (s *QuestionService) GetQuestionsByDifficulty(difficulty string) ([]models.QuestionResponse, error) {
-	// TODO: 根据难度获取题目列表
-	return nil, nil
-}
+	// 设置count默认值
+	if count <= 0 {
+		count = 10
+	}
 
-func (s *QuestionService) GetRandomQuestions(count int) ([]models.QuestionResponse, error) {
-	// TODO: 随机获取指定数量的题目
-	return nil, nil
-}
+	// 构建筛选条件
+	filter := bson.M{"is_active": true}
 
-func (s *QuestionService) UpdateQuestion(questionID primitive.ObjectID, req *models.CreateQuestionRequest) (*models.QuestionResponse, error) {
-	// TODO: 更新题目
-	return nil, nil
+	if category != "" {
+		filter["category"] = category
+	}
+
+	if difficulty != "" {
+		filter["difficulty"] = difficulty
+	}
+
+	// 使用MongoDB的$sample进行随机抽样
+	pipeline := []bson.M{
+		{"$match": filter},
+		{"$sample": bson.M{"size": count}},
+	}
+
+	cursor, err := s.collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var questions []models.Question
+	if err = cursor.All(ctx, &questions); err != nil {
+		return nil, err
+	}
+
+	return questions, nil
 }
 
 func (s *QuestionService) DeleteQuestion(questionID primitive.ObjectID) error {

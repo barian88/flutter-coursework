@@ -63,15 +63,12 @@ func SetupRoutes() *gin.Engine {
 	{
 		questionRoutes.POST("", questionHandler.CreateQuestion)
 		questionRoutes.GET("/:id", questionHandler.GetQuestion)
-		questionRoutes.GET("/category/:category", questionHandler.GetQuestionsByCategory)
-		questionRoutes.GET("/difficulty/:difficulty", questionHandler.GetQuestionsByDifficulty)
-		questionRoutes.GET("/random", questionHandler.GetRandomQuestions)
 	}
 
 	// Quiz routes
 	quizRoutes := r.Group("/quiz")
 	{
-		quizRoutes.POST("", quizHandler.CreateQuiz)
+		quizRoutes.POST("/new", quizHandler.CreateQuiz)
 		quizRoutes.GET("/:id", quizHandler.GetQuiz)
 		quizRoutes.POST("/submit", quizHandler.SubmitQuiz)
 		quizRoutes.GET("/history", quizHandler.GetUserQuizHistory)
