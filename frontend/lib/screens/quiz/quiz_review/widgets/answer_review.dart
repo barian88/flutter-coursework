@@ -16,6 +16,10 @@ class AnswerReview extends StatelessWidget {
   final QuestionType questionType;
 
   String _convertIndexesToLabels(List<int> indexes) {
+    if (indexes.isEmpty) {
+      return 'None';
+    }
+
     if (questionType == QuestionType.trueFalse) {
       const labels = ['True', 'False'];
       return indexes.map((i) => labels[i]).join(', ');
@@ -37,13 +41,13 @@ class AnswerReview extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Correct Answers: ${_convertIndexesToLabels(correctAnswerIndex)}',
+          'Correct Answer: ${_convertIndexesToLabels(correctAnswerIndex)}',
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.green,
           ),
         ),
         Text(
-          'Your Answers: ${_convertIndexesToLabels(userAnswerIndex)}',
+          'Your Answer: ${_convertIndexesToLabels(userAnswerIndex)}',
           style: theme.textTheme.bodySmall?.copyWith(
             color: _isCorrect() ? theme.colorScheme.green : theme.colorScheme.red,
           ),

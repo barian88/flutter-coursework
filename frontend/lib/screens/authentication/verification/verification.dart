@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/widgets/widgets.dart';
 import 'package:frontend/themes/themes.dart';
+import 'package:frontend/utils/utils.dart';
 import 'package:frontend/pods/pods.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
@@ -57,9 +58,7 @@ class _VerificationState extends ConsumerState<Verification> {
     final result = await verificationNotifier.sendVerificationCode(widget.email);
     
     if (!result.isSuccess && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result.errorMessage ?? 'Failed to send verification code')),
-      );
+      await ToastHelper.showError(Theme.of(context), result.errorMessage ?? 'Failed to send verification code');
     }
   }
 
@@ -178,27 +177,19 @@ class _VerificationState extends ConsumerState<Verification> {
   }
 
   void handleVerification(BuildContext context, WidgetRef ref) async {
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
     final verificationNotifier = ref.read(verificationNotifierProvider.notifier);
-
 
     // 如果是注册页面，调用注册验证API，最后跳转到登陆页面
     if (widget.parentPage == 'register') {
       final result = await verificationNotifier.verifyRegistration(widget.email);
       if (result.isSuccess) {
-        scaffoldMessenger.clearSnackBars();
-        scaffoldMessenger.showSnackBar(
-          SnackBar(content: Text("Registration successful! Please sign in.")),
-        );
+        await ToastHelper.showSuccess(Theme.of(context), "Registration successful! Please sign in.");
         
         if (context.mounted) {
           context.go('/login');
         }
       } else {
-        scaffoldMessenger.clearSnackBars();
-        scaffoldMessenger.showSnackBar(
-          SnackBar(content: Text(result.errorMessage ?? "Verification failed")),
-        );
+        await ToastHelper.showError(Theme.of(context), result.errorMessage ?? "Verification failed");
       }
       return;
     }
@@ -211,13 +202,9 @@ class _VerificationState extends ConsumerState<Verification> {
           context.push('/change-password/${result.temporaryToken}');
         }
       } else {
-        scaffoldMessenger.clearSnackBars();
-        scaffoldMessenger.showSnackBar(
-          SnackBar(content: Text(result.errorMessage ?? "Verification failed")),
-        );
+        await ToastHelper.showError(Theme.of(context), result.errorMessage ?? "Verification failed");
       }
       return;
     }
-
   }
 }

@@ -1,13 +1,12 @@
 package handlers
 
 import (
+	"backend/middleware"
 	"backend/models"
 	"backend/services"
-	"net/http"
-	"strconv"
-
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"net/http"
 )
 
 type QuizHandler struct {
@@ -27,9 +26,12 @@ func (h *QuizHandler) CreateQuiz(c *gin.Context) {
 		return
 	}
 
-	// TODO: 从JWT token获取用户ID
-	// userID := getUserIDFromJWT(c)
-	userID := primitive.NewObjectID() // 临时使用
+	// 从JWT token获取用户ID
+	userID, exist := middleware.GetUserIDFromContext(c)
+	if !exist {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User authentication information not found"})
+		return
+	}
 
 	quiz, err := h.quizService.CreateQuiz(userID, &req)
 	if err != nil {
@@ -38,6 +40,47 @@ func (h *QuizHandler) CreateQuiz(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, quiz)
+}
+
+func (h *QuizHandler) SubmitQuiz(c *gin.Context) {
+	var req models.SubmitQuizRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 从JWT token获取用户ID
+	userID, exist := middleware.GetUserIDFromContext(c)
+	if !exist {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User authentication information not found"})
+		return
+	}
+
+	quiz, err := h.quizService.SubmitQuiz(userID, &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, quiz)
+}
+
+func (h *QuizHandler) GetUserQuizHistory(c *gin.Context) {
+
+	// 从JWT token获取用户ID
+	userID, exist := middleware.GetUserIDFromContext(c)
+	if !exist {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User authentication information not found"})
+		return
+	}
+
+	quizzes, err := h.quizService.GetUserQuizHistory(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	//	返回gin.H{"data": quizzes}格式的JSON响应，包装成一个map，方便前端处理
+	c.JSON(http.StatusOK, gin.H{"data": quizzes})
 }
 
 func (h *QuizHandler) GetQuiz(c *gin.Context) {
@@ -54,44 +97,4 @@ func (h *QuizHandler) GetQuiz(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, quiz)
-}
-
-func (h *QuizHandler) SubmitQuiz(c *gin.Context) {
-	var req models.SubmitQuizRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	// TODO: 从JWT token获取用户ID
-	// userID := getUserIDFromJWT(c)
-	userID := primitive.NewObjectID() // 临时使用
-
-	quiz, err := h.quizService.SubmitQuiz(userID, &req)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, quiz)
-}
-
-func (h *QuizHandler) GetUserQuizHistory(c *gin.Context) {
-	limitStr := c.DefaultQuery("limit", "10")
-	offsetStr := c.DefaultQuery("offset", "0")
-
-	limit, _ := strconv.Atoi(limitStr)
-	offset, _ := strconv.Atoi(offsetStr)
-
-	// TODO: 从JWT token获取用户ID
-	// userID := getUserIDFromJWT(c)
-	userID := primitive.NewObjectID() // 临时使用
-
-	quizzes, err := h.quizService.GetUserQuizHistory(userID, limit, offset)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"quizzes": quizzes})
 }

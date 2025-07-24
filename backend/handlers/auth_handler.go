@@ -235,10 +235,10 @@ func (h *AuthHandler) VerifyCode(c *gin.Context) {
 
 	// 验证成功，返回临时token
 	c.JSON(http.StatusOK, gin.H{
-		"success":        true,
-		"message":        "Verification successful",
-		"temporaryToken": temporaryToken,
-		"expiresIn":      300, // 5分钟 = 300秒
+		"success":         true,
+		"message":         "Verification successful",
+		"temporary_token": temporaryToken,
+		"expires_in":      300, // 5分钟 = 300秒
 	})
 }
 

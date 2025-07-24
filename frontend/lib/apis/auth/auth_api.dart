@@ -97,7 +97,7 @@ class VerifyCodeRequest {
 
   Map<String, dynamic> toJson() => {
     'email': email,
-    'verificationCode': verificationCode,
+    'verification_code': verificationCode,
     'purpose': purpose,
   };
 }
@@ -107,7 +107,7 @@ class CompleteRegistrationRequest {
 
   CompleteRegistrationRequest({required this.temporaryToken});
 
-  Map<String, dynamic> toJson() => {'temporaryToken': temporaryToken};
+  Map<String, dynamic> toJson() => {'temporary_token': temporaryToken};
 }
 
 class ResetPasswordRequest {
@@ -120,8 +120,8 @@ class ResetPasswordRequest {
   });
 
   Map<String, dynamic> toJson() => {
-    'temporaryToken': temporaryToken,
-    'newPassword': newPassword,
+    'temporary_token': temporaryToken,
+    'new_password': newPassword,
   };
 }
 
@@ -153,7 +153,7 @@ class VerifyCodeResponse {
       VerifyCodeResponse(
         success: json['success'],
         message: json['message'],
-        temporaryToken: json['temporaryToken'],
-        expiresIn: json['expiresIn'],
+        temporaryToken: json['temporary_token'],
+        expiresIn: json['expires_in'],
       );
 }

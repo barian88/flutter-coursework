@@ -16,35 +16,22 @@ class QuizNotifier extends _$QuizNotifier {
     ref.onDispose(() {
       _timer?.cancel();
     });
-    
+
     return const AsyncValue.data(QuizState.initial());
   }
 
   // 获取新的测验
-  Future<void> loadNewQuiz({
-    String? category,
-    String? difficulty,
-    int? questionCount,
-  }) async {
+  Future<void> loadNewQuiz({required String type, String? category, String? difficulty}) async {
     state = const AsyncValue.loading();
 
     try {
       final repository = ref.read(quizRepositoryProvider);
-      
-      // 首先尝试从API获取
-      try {
-        final quiz = await repository.createNewQuiz(
-          category: category,
-          difficulty: difficulty,
-          questionCount: questionCount ?? 10,
-        );
-        
-        state = AsyncValue.data(QuizState.loaded(quiz));
-      } catch (e) {
-        // 如果API失败，使用本地模拟数据
-        final quiz = repository.getMockQuiz();
-        state = AsyncValue.data(QuizState.loaded(quiz));
-      }
+      final quiz = await repository.createNewQuiz(
+        type: type,
+        category: category,
+        difficulty: difficulty,
+      );
+      state = AsyncValue.data(QuizState.loaded(quiz));
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
     }
@@ -53,27 +40,44 @@ class QuizNotifier extends _$QuizNotifier {
   // 获取测验回顾
   Future<void> loadQuizReview(String quizId) async {
     state = const AsyncValue.loading();
-    
+
     try {
+
       final repository = ref.read(quizRepositoryProvider);
-      
-      try {
-        final quiz = await repository.getQuiz(quizId);
-        state = AsyncValue.data(QuizState.review(quiz));
-      } catch (e) {
-        // 如果API失败，使用本地模拟数据
-        final quiz = repository.getMockReviewQuiz();
-        state = AsyncValue.data(QuizState.review(quiz));
-      }
+      final quiz = await repository.getQuiz(quizId);
+      state = AsyncValue.data(QuizState.review(quiz));
+
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
+    }
+  }
+
+  // 确认提交测验
+  Future<SubmitQuizResult> submitQuiz() async {
+    stopTimer();
+    final quiz = state.value?.quiz;
+    // 构建quizRequest
+    final quizRequest;
+    if (quiz == null) {
+      return SubmitQuizResult.error('Quiz data is not available');
+    } else {
+      quizRequest = SubmitQuizRequest(type: quiz.type.name, questions: quiz.questions, completionTime: quiz.completionTime);
+    }
+    try{
+      final quizRepository = ref.read(quizRepositoryProvider);
+      final quiz = await quizRepository.submitQuiz(quizRequest);
+
+      return SubmitQuizResult.success(quiz.id);
+    }catch(e){
+      return SubmitQuizResult.error('Failed to submit quiz: ${e.toString()}');
     }
   }
 
   // 下一题
   void nextQuestion() {
     state.whenData((quizState) {
-      if (quizState.currentQuestionIndex < quizState.quiz.questions.length - 1) {
+      if (quizState.currentQuestionIndex <
+          quizState.quiz.questions.length - 1) {
         state = AsyncValue.data(
           quizState.copyWith(
             currentQuestionIndex: quizState.currentQuestionIndex + 1,
@@ -99,51 +103,51 @@ class QuizNotifier extends _$QuizNotifier {
   // 设置用户答案
   void setUserAnswerIndex(int optionIndex) {
     state.whenData((quizState) {
-      final currentQuestion = quizState.quiz.questions[quizState.currentQuestionIndex];
-      List<int> userAnswerIndex = List.from(currentQuestion.userAnswerIndex);
-      
-      if (currentQuestion.type == QuestionType.singleChoice ||
-          currentQuestion.type == QuestionType.trueFalse) {
+      final currentQuizQuestion =
+          quizState.quiz.questions[quizState.currentQuestionIndex];
+      List<int> userAnswerIndex = List.from(
+        currentQuizQuestion.userAnswerIndex,
+      );
+
+      if (currentQuizQuestion.question.type == QuestionType.singleChoice ||
+          currentQuizQuestion.question.type == QuestionType.trueFalse) {
         userAnswerIndex = [optionIndex];
-      } else if (currentQuestion.type == QuestionType.multipleChoice) {
-        if (currentQuestion.userAnswerIndex.contains(optionIndex)) {
+      } else if (currentQuizQuestion.question.type ==
+          QuestionType.multipleChoice) {
+        if (currentQuizQuestion.userAnswerIndex.contains(optionIndex)) {
           userAnswerIndex.remove(optionIndex);
         } else {
           userAnswerIndex.add(optionIndex);
         }
       }
 
-      final updatedQuestion = currentQuestion.copyWith(
+      final updatedQuizQuestion = currentQuizQuestion.copyWith(
         userAnswerIndex: userAnswerIndex,
       );
 
       final updatedQuestions = [...quizState.quiz.questions];
-      updatedQuestions[quizState.currentQuestionIndex] = updatedQuestion;
+      updatedQuestions[quizState.currentQuestionIndex] = updatedQuizQuestion;
 
       final updatedQuiz = quizState.quiz.copyWith(questions: updatedQuestions);
-      
-      state = AsyncValue.data(
-        quizState.copyWith(quiz: updatedQuiz),
-      );
+
+      state = AsyncValue.data(quizState.copyWith(quiz: updatedQuiz));
     });
   }
 
   // 开始计时器
   void startTimer() {
     _timer?.cancel();
-    
+
     state.whenData((quizState) {
       final updatedQuiz = quizState.quiz.copyWith(completionTime: 0);
       state = AsyncValue.data(quizState.copyWith(quiz: updatedQuiz));
-      
+
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
         state.whenData((currentState) {
           final updatedQuiz = currentState.quiz.copyWith(
             completionTime: currentState.quiz.completionTime + 1,
           );
-          state = AsyncValue.data(
-            currentState.copyWith(quiz: updatedQuiz),
-          );
+          state = AsyncValue.data(currentState.copyWith(quiz: updatedQuiz));
         });
       });
     });
@@ -154,42 +158,6 @@ class QuizNotifier extends _$QuizNotifier {
     _timer?.cancel();
   }
 
-  // 提交测验
-  Future<void> submitQuiz() async {
-    await state.when(
-      data: (quizState) async {
-        try {
-          stopTimer();
-          
-          final repository = ref.read(quizRepositoryProvider);
-          final answers = quizState.quiz.questions.map((question) => 
-            QuestionAnswer(
-              questionId: question.id,
-              selectedAnswers: question.userAnswerIndex,
-            )
-          ).toList();
-
-          final request = SubmitQuizRequest(
-            answers: answers,
-            completionTime: quizState.quiz.completionTime,
-          );
-
-          try {
-            await repository.submitQuiz(quizState.quiz.id, request);
-            // 可以在这里处理提交结果
-            // TODO: 添加成功提示或导航到结果页面
-          } catch (e) {
-            // 如果提交失败，至少保存本地状态
-            // TODO: 添加错误处理或离线存储
-          }
-        } catch (error, stackTrace) {
-          state = AsyncValue.error(error, stackTrace);
-        }
-      },
-      loading: () async {},
-      error: (error, stackTrace) async {},
-    );
-  }
 
   // 重置测验
   void resetQuiz() {
@@ -210,24 +178,17 @@ class QuizState {
     this.status = QuizStatus.initial,
   });
 
-  const QuizState.initial() : this(
-    quiz: const Quiz(
-      id: '',
-      type: QuizType.randomTasks,
-      questions: [],
-    ),
-    status: QuizStatus.initial,
-  );
+  const QuizState.initial()
+    : this(
+        quiz: const Quiz(id: '', type: QuizType.randomTasks, questions: []),
+        status: QuizStatus.initial,
+      );
 
-  const QuizState.loaded(Quiz quiz) : this(
-    quiz: quiz,
-    status: QuizStatus.active,
-  );
+  const QuizState.loaded(Quiz quiz)
+    : this(quiz: quiz, status: QuizStatus.active);
 
-  const QuizState.review(Quiz quiz) : this(
-    quiz: quiz,
-    status: QuizStatus.review,
-  );
+  const QuizState.review(Quiz quiz)
+    : this(quiz: quiz, status: QuizStatus.review);
 
   QuizState copyWith({
     Quiz? quiz,
@@ -242,8 +203,21 @@ class QuizState {
   }
 }
 
-enum QuizStatus {
-  initial,
-  active,
-  review
+enum QuizStatus { initial, active, review }
+
+// submit结果类
+class SubmitQuizResult {
+  final bool isSuccess;
+  final String? quizId;
+  final String? errorMessage;
+
+  const SubmitQuizResult({required this.isSuccess, this.quizId, this.errorMessage});
+
+  factory SubmitQuizResult.success(String quizId) {
+    return SubmitQuizResult(isSuccess: true, quizId: quizId);
+  }
+
+  factory SubmitQuizResult.error(String message) {
+    return SubmitQuizResult(isSuccess: false, errorMessage: message);
+  }
 }

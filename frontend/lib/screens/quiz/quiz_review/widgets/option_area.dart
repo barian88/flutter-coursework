@@ -15,12 +15,12 @@ class OptionArea extends ConsumerWidget {
 
     return quizState.when(
       data: (state) {
-        final currentQuestion = state.quiz.questions[state.currentQuestionIndex];
+        final currentQuizQuestion = state.quiz.questions[state.currentQuestionIndex];
         
         return LayoutBuilder(
           builder: (context, constraints) {
             final maxWidth = constraints.maxWidth;
-            if(currentQuestion.type == QuestionType.trueFalse){
+            if(currentQuizQuestion.question.type == QuestionType.trueFalse){
               return Column(
                 children: [
                   ChoiceOptionsContainer(
@@ -95,9 +95,9 @@ class ChoiceOptionsContainer extends ConsumerWidget {
 
     return quizState.when(
       data: (state) {
-        final currentQuestion = state.quiz.questions[state.currentQuestionIndex];
-        final userAnswerIndex = currentQuestion.userAnswerIndex;
-        final correctAnswerIndex = currentQuestion.correctAnswerIndex;
+        final currentQuizQuestion = state.quiz.questions[state.currentQuestionIndex];
+        final userAnswerIndex = currentQuizQuestion.userAnswerIndex;
+        final correctAnswerIndex = currentQuizQuestion.question.correctAnswerIndex;
 
         final currentOptionIndex = _getCurrentIndex();
 
@@ -113,11 +113,11 @@ class ChoiceOptionsContainer extends ConsumerWidget {
         }
 
         return SizedBox(
-          width: currentQuestion.type == QuestionType.trueFalse
+          width: currentQuizQuestion.question.type == QuestionType.trueFalse
               ? maxWidth
               : (maxWidth - 20) / 2,
           child: AspectRatio(
-            aspectRatio: currentQuestion.type == QuestionType.trueFalse ? 4 : 1.6,
+            aspectRatio: currentQuizQuestion.question.type == QuestionType.trueFalse ? 4 : 1.6,
             child: Container(
               decoration: BoxDecoration(
                 color: backgroundColor,

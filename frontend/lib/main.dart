@@ -20,14 +20,16 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    // Initialize any necessary services or state here
+    // 应用启动时恢复用户认证状态
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await ref.read(userNotifierProvider.notifier).loadUserFromStorage();
+    });
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
       // Save the current state of the app when it goes into the background
-      // print("save done");
     }
   }
 

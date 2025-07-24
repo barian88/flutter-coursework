@@ -6,7 +6,8 @@ import 'package:gap/gap.dart';
 import 'widgets/widgets.dart';
 
 class QuizReview extends ConsumerStatefulWidget {
-  const QuizReview({super.key});
+  const QuizReview({super.key, required this.quizId});
+  final String quizId;
 
   @override
   ConsumerState<QuizReview> createState() => _QuizReviewState();
@@ -18,7 +19,7 @@ class _QuizReviewState extends ConsumerState<QuizReview> {
     super.initState();
     Future.microtask(() {
       final quizNotifier = ref.read(quizNotifierProvider.notifier);
-      quizNotifier.loadQuizReview('mock-quiz-id');
+      quizNotifier.loadQuizReview(widget.quizId);
     });
   }
 
@@ -41,10 +42,10 @@ class _QuizReviewState extends ConsumerState<QuizReview> {
             );
           }
           
-          final currentQuestion = state.quiz.questions[state.currentQuestionIndex];
-          final questionType = currentQuestion.type;
-          final userAnswerIndex = currentQuestion.userAnswerIndex;
-          final correctAnswerIndex = currentQuestion.correctAnswerIndex;
+          final currentQuizQuestion = state.quiz.questions[state.currentQuestionIndex];
+          final questionType = currentQuizQuestion.question.type;
+          final userAnswerIndex = currentQuizQuestion.userAnswerIndex;
+          final correctAnswerIndex = currentQuizQuestion.question.correctAnswerIndex;
 
           return BaseContainer(
             isScrollable: false,

@@ -45,9 +45,10 @@ class RouteNotifier extends _$RouteNotifier {
               routes: [
                 GoRoute(
                   parentNavigatorKey: _rootNavigatorKey,
-                  path: '/quiz-review/:quizId',
+                  path: '/quiz-review/:id',
                   builder: (context, state) {
-                    return const QuizReview();
+                    final id = state.pathParameters['id'] ?? '';
+                    return QuizReview(quizId: id);
                   },
                 ),
               ],

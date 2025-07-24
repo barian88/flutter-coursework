@@ -13,18 +13,18 @@ class QuizStat extends ConsumerWidget {
 
     return quizState.when(
       data: (state) {
-        final String completionTime = TimeFormatterUtil.getFormattedTime(
+        final String completionTime = TimeFormatterUtil.formatCompletionTime(
           state.quiz.completionTime,
         );
         final int correctQuestionsNum = state.quiz.correctQuestionsNum;
-
+        final int totalQuestions = state.quiz.questions.length;
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('$correctQuestionsNum/10 Correct', style: theme.textTheme.bodySmall?.copyWith(
+            Text('$correctQuestionsNum/$totalQuestions Correct', style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant
             ),),
-            Text(completionTime, style: theme.textTheme.bodySmall?.copyWith(
+            Text('Completion time: $completionTime', style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant
             ),),
           ],

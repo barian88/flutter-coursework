@@ -5,7 +5,6 @@ class Question {
   final String questionText;
   final List<String> options;
   final List<int> correctAnswerIndex;
-  final List<int> userAnswerIndex;
 
   final QuestionType type;
   final QuestionCategory category;
@@ -16,7 +15,6 @@ class Question {
     required this.questionText,
     required this.options,
     required this.correctAnswerIndex,
-    this.userAnswerIndex = const [],
     required this.type,
     required this.category,
     required this.difficulty,
@@ -27,7 +25,6 @@ class Question {
     String? questionText,
     List<String>? options,
     List<int>? correctAnswerIndex,
-    List<int>? userAnswerIndex,
     QuestionType? type,
     QuestionCategory? category,
     QuestionDifficulty? difficulty,
@@ -37,7 +34,6 @@ class Question {
       questionText: questionText ?? this.questionText,
       options: options ?? this.options,
       correctAnswerIndex: correctAnswerIndex ?? this.correctAnswerIndex,
-      userAnswerIndex: userAnswerIndex ?? this.userAnswerIndex,
       type: type ?? this.type,
       category: category ?? this.category,
       difficulty: difficulty ?? this.difficulty,
@@ -46,11 +42,10 @@ class Question {
 
   // JSON 序列化支持
   factory Question.fromJson(Map<String, dynamic> json) => Question(
-    id: json['id'] ?? '',
-    questionText: json['questionText'] ?? '',
+    id: json['_id'] ?? json['id'] ?? '', // 兼容MongoDB的_id字段
+    questionText: json['question_text'] ?? '',
     options: List<String>.from(json['options'] ?? []),
-    correctAnswerIndex: List<int>.from(json['correctAnswerIndex'] ?? []),
-    userAnswerIndex: List<int>.from(json['userAnswerIndex'] ?? []),
+    correctAnswerIndex: List<int>.from(json['correct_answer_index'] ?? []),
     type: QuestionType.values.firstWhere(
       (e) => e.name == json['type'],
       orElse: () => QuestionType.singleChoice,
@@ -66,27 +61,14 @@ class Question {
   );
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'questionText': questionText,
+    '_id': id,  // 兼容MongoDB的_id字段
+    'question_text': questionText,
     'options': options,
-    'correctAnswerIndex': correctAnswerIndex,
-    'userAnswerIndex': userAnswerIndex,
+    'correct_answer_index': correctAnswerIndex,
     'type': type.name,
     'category': category.name,
     'difficulty': difficulty.name,
   };
-
-  // 便利方法
-  bool get isAnswered => userAnswerIndex.isNotEmpty;
-  
-  bool get isCorrect {
-    if (!isAnswered) return false;
-    
-    // 检查用户答案是否与正确答案完全匹配
-    final userSet = Set<int>.from(userAnswerIndex);
-    final correctSet = Set<int>.from(correctAnswerIndex);
-    return userSet.length == correctSet.length && userSet.containsAll(correctSet);
-  }
 
 }
 

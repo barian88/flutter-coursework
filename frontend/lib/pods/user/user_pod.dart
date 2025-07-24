@@ -9,6 +9,8 @@ part 'user_pod.g.dart';
 class UserNotifier extends _$UserNotifier {
   @override
   UserState build() {
+    // 保持provider活跃，防止状态丢失
+    ref.keepAlive();
     return const UserState();
   }
 
@@ -17,7 +19,6 @@ class UserNotifier extends _$UserNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('auth_token', token);
     await prefs.setString('user_data', jsonEncode(user.toJson()));
-    
     // 更新状态
     state = UserState(
       isLoggedIn: true,
@@ -41,7 +42,7 @@ class UserNotifier extends _$UserNotifier {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
       final userData = prefs.getString('user_data');
-      
+      // print(token);
       if (token != null && userData != null) {
         final userJson = jsonDecode(userData) as Map<String, dynamic>;
         final user = User.fromJson(userJson);
@@ -54,7 +55,7 @@ class UserNotifier extends _$UserNotifier {
       }
     } catch (e) {
       // 如果加载失败，保持默认状态
-      print('Failed to load user from storage: $e');
+
     }
   }
 

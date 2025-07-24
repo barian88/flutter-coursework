@@ -37,7 +37,7 @@ class QuizButtonContainer extends ConsumerWidget {
         onTap: () {
           switch (index) {
             case 0:
-              context.push('/home/new-quiz');
+              context.push('/home/new-quiz?type=${QuizType.randomTasks.name}');
               break;
             case 1:
               _showPicker(context, QuizType.topicPractice);
@@ -139,18 +139,20 @@ class QuizButtonContainer extends ConsumerWidget {
               onPressed: () {
                 switch (quizType) {
                   case QuizType.topicPractice:
-                    context.push('/home/new-quiz?category=${topicList[selectedIndexTopic]}');
+                    context.push('/home/new-quiz?type=${QuizType.topicPractice.name}&category=${topicList[selectedIndexTopic]}');
                     break;
                     case QuizType.byDifficulty:
-                    context.push('/home/new-quiz?difficulty=${difficultyList[selectedIndexDifficulty]}');
+                    context.push('/home/new-quiz?type=${QuizType.byDifficulty.name}&difficulty=${difficultyList[selectedIndexDifficulty]}');
                     break;
                   case QuizType.customQuiz:
-                    context.push('/home/new-quiz?category=${topicList[selectedIndexTopic]}&difficulty=${difficultyList[selectedIndexDifficulty]}');
+                    context.push('/home/new-quiz?type=${QuizType.customQuiz.name}&category=${topicList[selectedIndexTopic]}&difficulty=${difficultyList[selectedIndexDifficulty]}');
                     break;
                   default:
-                    context.push('home/new-quiz');
+                    context.push('/home/new-quiz?type=${QuizType.randomTasks.name}');
                     break;
                 }
+                // 关闭底部弹出框
+                Navigator.pop(context);
               },
             ),
             Expanded(

@@ -30,13 +30,13 @@ class User {
     id: json['_id'] ?? json['id'] ?? '', // 兼容MongoDB的_id字段
     username: json['username'] ?? '',
     email: json['email'] ?? '',
-    profilePictureUrl: json['profilePictureUrl'] ?? '',
+    profilePictureUrl: json['profile_picture_url'] ?? '',
   );
 
   Map<String, dynamic> toJson() => {
-    'id': id,
+    '_id': id,
     'username': username,
     'email': email,
-    'profilePictureUrl': profilePictureUrl,
+    'profile_picture_url': profilePictureUrl,
   };
 }

@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:frontend/models/models.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../themes/themes.dart';
-import '../models/models.dart';
+import 'package:frontend/utils/utils.dart';
 
 class HistoryCard extends StatelessWidget {
   const HistoryCard({
     super.key,
-    required this.historyItem,
+    required this.quizItem,
     required this.index,
   });
 
-  final HistoryItem historyItem;
+  final Quiz quizItem;
   final int index;
 
   @override
   Widget build(BuildContext context) {
-
     final theme = Theme.of(context);
 
     final purpleGradient = AppGradients.historyCardPurpleGradient(theme);
@@ -35,26 +35,26 @@ class HistoryCard extends StatelessWidget {
 
     final FaIcon icon =
         (() {
-          switch (historyItem.type) {
-            case "Random Tasks":
+          switch (quizItem.type) {
+            case QuizType.randomTasks:
               return FaIcon(
                 FontAwesomeIcons.diceThree,
                 size: 80,
                 color: iconColor,
               );
-            case "Topic Practice":
+            case QuizType.topicPractice:
               return FaIcon(
                 FontAwesomeIcons.bullseye,
                 size: 78,
                 color: iconColor,
               );
-            case "By Difficulty":
+            case QuizType.byDifficulty:
               return FaIcon(
                 FontAwesomeIcons.bookOpen,
                 size: 65,
                 color: iconColor,
               );
-            case "Custom Quiz":
+            case QuizType.customQuiz:
               return FaIcon(
                 FontAwesomeIcons.pencil,
                 size: 68,
@@ -71,7 +71,7 @@ class HistoryCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        context.go('/history/quiz-review/${historyItem.id}');
+        context.go('/history/quiz-review/${quizItem.id}');
       },
       child: Container(
         width: double.infinity,
@@ -99,7 +99,7 @@ class HistoryCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    historyItem.type,
+                    quizItem.type.displayName,
                     style: theme.textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -109,7 +109,7 @@ class HistoryCard extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        '${historyItem.correct}/10 Correct',
+                        '${quizItem.correctQuestionsNum}/10 Correct',
                         style: TextStyle(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -118,13 +118,19 @@ class HistoryCard extends StatelessWidget {
                       Text('·'),
                       Gap(5),
                       Text(
-                        historyItem.time,
+                        TimeFormatterUtil.formatCompletionTime(quizItem.completionTime),
                         style: TextStyle(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
                   ),
+                  Gap(8),
+                  Text(
+                    TimeFormatterUtil.formatDetailedTime(quizItem.completedAt) ,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant
+                    ),                  ),
                 ],
               ),
             ),

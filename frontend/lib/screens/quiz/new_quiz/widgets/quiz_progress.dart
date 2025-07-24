@@ -14,7 +14,7 @@ class QuizProgress extends ConsumerWidget {
 
     return quizState.when(
       data: (state) {
-        final currentQuestionIndex = state.currentQuestionIndex;
+        final currentQuestionIndex = state.currentQuestionIndex + 1; // Convert to 1-based index for display
         final totalQuestions = state.quiz.questions.length;
         
         return LayoutBuilder(

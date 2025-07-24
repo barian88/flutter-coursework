@@ -25,5 +25,5 @@ type RegisterRequestModel struct {
 // RegisterVerifyRequest 注册验证请求模型
 type RegisterVerifyRequest struct {
 	Email            string `json:"email" binding:"required,email"`
-	VerificationCode string `json:"verificationCode" binding:"required"`
+	VerificationCode string `json:"verification_code" binding:"required"`
 }

@@ -19,9 +19,9 @@ class _NewQuizState extends ConsumerState<NewQuiz> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      final (category, difficulty) = _parseQueryParameters();
+      final (type, category, difficulty) = _parseQueryParameters();
       final quizNotifier = ref.read(quizNotifierProvider.notifier);
-      quizNotifier.loadNewQuiz(category: category?.name, difficulty: difficulty?.name);
+      quizNotifier.loadNewQuiz(type: type.name, category: category?.name, difficulty: difficulty?.name);
     });
   }
 
@@ -81,14 +81,23 @@ class _NewQuizState extends ConsumerState<NewQuiz> {
     );
   }
 
-  (QuestionCategory?, QuestionDifficulty?) _parseQueryParameters() {
+  (QuizType, QuestionCategory?, QuestionDifficulty?) _parseQueryParameters() {
     // 获取查询参数
     final state = GoRouterState.of(context);
+    final typeParam = state.uri.queryParameters['type'];
     final categoryParam = state.uri.queryParameters['category'];
     final difficultyParam = state.uri.queryParameters['difficulty'];
     // 转换为对应的enum类型（如果参数存在）
+    QuizType type = QuizType.randomTasks; // 默认值
     QuestionCategory? category;
     QuestionDifficulty? difficulty;
+
+    for (var cat in QuizType.values) {
+      if (cat.name == typeParam) {
+        type = cat;
+        break;
+      }
+    }
 
     if (categoryParam != null) {
       // 根据displayName找到对应的enum
@@ -110,6 +119,6 @@ class _NewQuizState extends ConsumerState<NewQuiz> {
       }
     }
 
-    return (category, difficulty);
+    return (type, category, difficulty);
   }
 }

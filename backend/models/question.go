@@ -13,6 +13,7 @@ type Question struct {
 	IsActive           bool               `json:"is_active" bson:"is_active"`
 }
 
+// 这个模型有必要吗
 type CreateQuestionRequest struct {
 	QuestionText       string   `json:"question_text" binding:"required"`
 	Options            []string `json:"options" binding:"required"`

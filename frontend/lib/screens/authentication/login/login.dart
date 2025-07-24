@@ -105,7 +105,6 @@ class Login extends ConsumerWidget {
   }
 
   void handleLogin(BuildContext context, WidgetRef ref) async {
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
     final loginNotifier = ref.read(loginNotifierProvider.notifier);
     
     final result = await loginNotifier.login();
@@ -117,31 +116,20 @@ class Login extends ConsumerWidget {
       }
     } else {
       // 显示错误信息
-      scaffoldMessenger.clearSnackBars();
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text(result.errorMessage ?? 'Login failed')),
-      );
+      await ToastHelper.showError(Theme.of(context), result.errorMessage ?? 'Login failed');
     }
   }
 
 
-  void handleForgotPassword(BuildContext context, LoginNotifierModel loginState) {
-
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
+  void handleForgotPassword(BuildContext context, LoginNotifierModel loginState) async {
     // 首先必须输入了邮箱地址
     if (loginState.email.isEmpty) {
-      scaffoldMessenger.clearSnackBars();
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text("Please enter your email address first")),
-      );
+      await ToastHelper.showWarning(Theme.of(context), "Please enter your email address first");
       return;
     }
     // 邮箱地址格式必须正确
     if (!EmailUtil.isValidEmail(loginState.email)) {
-      scaffoldMessenger.clearSnackBars();
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text("Please enter a valid email address")),
-      );
+      await ToastHelper.showWarning(Theme.of(context), "Please enter a valid email address");
       return;
     }
     // 跳转到验证码页面后续处理

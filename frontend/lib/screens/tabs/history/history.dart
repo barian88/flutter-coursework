@@ -3,10 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import '../../../widgets/widgets.dart';
 import '../../../pods/history/history_pod.dart';
-import '../../../utils/utils.dart';
-import '../../../models/models.dart';
 import 'widgets/widgets.dart';
-import 'models/models.dart';
 
 class History extends ConsumerStatefulWidget {
   const History({super.key});
@@ -39,15 +36,9 @@ class _HistoryState extends ConsumerState<History> {
           
           final cardList = List.generate(quizzes.length, (index) {
             final quiz = quizzes[index];
-            final historyItem = HistoryItem(
-              id: quiz.id,
-              type: quiz.type.displayName,
-              correct: quiz.correctQuestionsNum,
-              time: TimeFormatterUtil.getFormattedTime(quiz.completionTime),
-            );
             return Column(
               children: [
-                HistoryCard(historyItem: historyItem, index: index),
+                HistoryCard(quizItem: quiz, index: index),
                 const Gap(30),
               ],
             );

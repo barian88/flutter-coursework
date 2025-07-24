@@ -13,25 +13,26 @@ class QuizProgress extends ConsumerWidget {
 
     return quizState.when(
       data: (state) {
-        final currentQuestionIndex = state.currentQuestionIndex;
-        
+        final currentQuestionIndex = state.currentQuestionIndex + 1; // Convert to 1-based index for display
+        final totalQuestions = state.quiz.questions.length;
+
         return LayoutBuilder(
           builder: (context, constraint) {
             final width = constraint.maxWidth;
             return LinearPercentIndicator(
               width: width,
               lineHeight: 20.0,
-              percent: currentQuestionIndex / 10,
+              percent: currentQuestionIndex / totalQuestions,
               barRadius: Radius.circular(12),
               center: Center(
                 child: Text(
-                  '$currentQuestionIndex/10',
+                  '$currentQuestionIndex/$totalQuestions',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color:
-                        (currentQuestionIndex / 10 < 0.5 &&
-                                theme.brightness == Brightness.light)
-                            ? Colors.black
-                            : Colors.white,
+                    (currentQuestionIndex / totalQuestions < 0.5 &&
+                        theme.brightness == Brightness.light)
+                        ? Colors.black
+                        : Colors.white,
                   ),
                 ),
               ),

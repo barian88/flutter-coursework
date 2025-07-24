@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/widgets/widgets.dart';
 import 'package:frontend/themes/themes.dart';
+import 'package:frontend/utils/utils.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend/pods/pods.dart';
@@ -85,7 +86,6 @@ class Register extends ConsumerWidget {
   }
 
   void handleRegister(BuildContext context, WidgetRef ref) async {
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
     final registerNotifier = ref.read(registerNotifierProvider.notifier);
     final registerState = ref.read(registerNotifierProvider);
     
@@ -98,10 +98,7 @@ class Register extends ConsumerWidget {
       }
     } else {
       // 显示错误信息
-      scaffoldMessenger.clearSnackBars();
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text(result.errorMessage ?? 'Registration failed')),
-      );
+      await ToastHelper.showError(Theme.of(context), result.errorMessage ?? 'Registration failed');
     }
   }
 }

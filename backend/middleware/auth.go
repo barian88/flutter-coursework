@@ -48,7 +48,8 @@ func GetUserIDFromContext(c *gin.Context) (primitive.ObjectID, bool) {
 	if !exists {
 		return primitive.NilObjectID, false
 	}
-	
+
 	id, ok := userID.(primitive.ObjectID)
 	return id, ok
 }
+

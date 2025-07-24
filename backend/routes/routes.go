@@ -41,13 +41,16 @@ func SetupRoutes() *gin.Engine {
 	// Authentication routes
 	authRoutes := r.Group("/auth")
 	{
+		// 无需认证的接口
 		authRoutes.POST("/register-request", authHandler.RegisterRequest)
 		authRoutes.POST("/complete-registration", authHandler.CompleteRegistration)
 		authRoutes.POST("/login", authHandler.Login)
-		authRoutes.POST("/logout", authHandler.Logout)
 		authRoutes.POST("/send-verification", authHandler.SendVerificationCode)
 		authRoutes.POST("/verify-code", authHandler.VerifyCode)
 		authRoutes.POST("/update-password", authHandler.UpdatePassword)
+
+		// 需要认证的接口
+		authRoutes.POST("/logout", middleware.AuthMiddleware(), authHandler.Logout)
 	}
 
 	// User profile routes
@@ -61,12 +64,17 @@ func SetupRoutes() *gin.Engine {
 	// Question routes
 	questionRoutes := r.Group("/question")
 	{
-		questionRoutes.POST("", questionHandler.CreateQuestion)
-		questionRoutes.GET("/:id", questionHandler.GetQuestion)
+		// 创建题目 - 需要认证（通常只有管理员可以创建题目）
+		questionRoutes.POST("", middleware.AuthMiddleware(), questionHandler.CreateQuestion)
+
+		// 获取单个题目 - 需要认证
+		questionRoutes.GET("/:id", middleware.AuthMiddleware(), questionHandler.GetQuestion)
 	}
 
 	// Quiz routes
 	quizRoutes := r.Group("/quiz")
+	// 使用JWT认证中间件保护Quiz相关的路由
+	quizRoutes.Use(middleware.AuthMiddleware())
 	{
 		quizRoutes.POST("/new", quizHandler.CreateQuiz)
 		quizRoutes.GET("/:id", quizHandler.GetQuiz)

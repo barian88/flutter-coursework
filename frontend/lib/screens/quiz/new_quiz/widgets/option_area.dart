@@ -16,39 +16,39 @@ class OptionArea extends ConsumerWidget {
 
     return quizState.when(
       data: (state) {
-        final currentQuestion = state.quiz.questions[state.currentQuestionIndex];
-        return _buildOptionArea(context, currentQuestion);
+        final currentQuizQuestion = state.quiz.questions[state.currentQuestionIndex];
+        return _buildOptionArea(context, currentQuizQuestion);
       },
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stackTrace) => Center(child: Text('Error: $error')),
     );
   }
 
-  Widget _buildOptionArea(BuildContext context, Question currentQuestion) {
+  Widget _buildOptionArea(BuildContext context, QuizQuestion currentQuizQuestion) {
     final theme = Theme.of(context);
 
     final choiceColors = [
       theme.colorScheme.blue,
-      theme.colorScheme.red,
       theme.colorScheme.secondary,
       theme.colorScheme.green,
+      theme.colorScheme.red,
     ];
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final maxWidth = constraints.maxWidth;
-        if(currentQuestion.type == QuestionType.trueFalse){
+        if(currentQuizQuestion.question.type == QuestionType.trueFalse){
           return Column(
             children: [
               ChoiceOptionsContainer(
                 option: 'True',
-                color: choiceColors[3],
+                color: choiceColors[2],
                 maxWidth: maxWidth,
               ),
               Gap(20),
               ChoiceOptionsContainer(
                 option: 'False',
-                color: choiceColors[1],
+                color: choiceColors[3],
                 maxWidth: maxWidth,
               ),
             ],
@@ -117,16 +117,16 @@ class ChoiceOptionsContainer extends ConsumerWidget {
 
    return quizState.when(
      data: (state) {
-       final currentQuestion = state.quiz.questions[state.currentQuestionIndex];
-       final userAnswerIndex = currentQuestion.userAnswerIndex;
+       final currentQuizQuestion = state.quiz.questions[state.currentQuestionIndex];
+       final userAnswerIndex = currentQuizQuestion.userAnswerIndex;
        // 初始化时检查是否已选择该选项
        final currentOptionIndex = _getCurrentIndex();
        final isSelected = userAnswerIndex.contains(currentOptionIndex);
 
        return SizedBox(
-      width: currentQuestion.type == QuestionType.trueFalse ? maxWidth : (maxWidth - 20) / 2,
+      width: currentQuizQuestion.question.type == QuestionType.trueFalse ? maxWidth : (maxWidth - 20) / 2,
       child: AspectRatio(
-        aspectRatio: currentQuestion.type == QuestionType.trueFalse ? 4 : 1.6,
+        aspectRatio: currentQuizQuestion.question.type == QuestionType.trueFalse ? 4 : 1.6,
         child: InkWell(
           onTap: () {
             quizNotifier.setUserAnswerIndex(currentOptionIndex);},

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/widgets/widgets.dart';
 import 'package:frontend/themes/themes.dart';
+import 'package:frontend/utils/utils.dart';
 import 'package:gap/gap.dart';
 import 'package:frontend/pods/pods.dart';
 import 'package:go_router/go_router.dart';
@@ -74,25 +75,16 @@ class _ChangePasswordState extends ConsumerState<ChangePassword> {
   }
 
   void _handleChangePassword(BuildContext context) async {
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
     final changePasswordNotifier = ref.read(changePasswordNotifierProvider.notifier);
 
     final result = await changePasswordNotifier.resetPassword();
     // 成功后提示用户密码更改成功
     if(result.isSuccess){
-      scaffoldMessenger.clearSnackBars();
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text('Password changed successfully, please sign in again')),
-      );
+      await ToastHelper.showSuccess(Theme.of(context), 'Password changed successfully, please sign in again');
       context.go('/login');
     }else {
       // 显示错误信息
-      scaffoldMessenger.clearSnackBars();
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text(result.errorMessage ?? 'Reset password failed')),
-      );
+      await ToastHelper.showError(Theme.of(context), result.errorMessage ?? 'Reset password failed');
     }
-
-
   }
 }

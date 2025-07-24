@@ -15,7 +15,7 @@ class QuestionArea extends ConsumerWidget {
 
     return quizState.when(
       data: (state) {
-        final currentQuestion = state.quiz.questions[state.currentQuestionIndex];
+        final currentQuizQuestion = state.quiz.questions[state.currentQuestionIndex];
         
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -29,30 +29,30 @@ class QuestionArea extends ConsumerWidget {
             Row(
               children: [
                 Chip(
-                  label: Text(currentQuestion.type.displayName, style: theme.textTheme.bodySmall),
+                  label: Text(currentQuizQuestion.question.type.displayName, style: theme.textTheme.bodySmall),
                   padding: EdgeInsets.all(0),
                 ),
                 Gap(8),
                 Chip(
-                  label: Text(currentQuestion.category.displayName, style: theme.textTheme.bodySmall),
+                  label: Text(currentQuizQuestion.question.category.displayName, style: theme.textTheme.bodySmall),
                   padding: EdgeInsets.all(0),
                 ),
                 Gap(8),
                 Chip(
-                  label: Text(currentQuestion.difficulty.displayName, style: theme.textTheme.bodySmall),
+                  label: Text(currentQuizQuestion.question.difficulty.displayName, style: theme.textTheme.bodySmall),
                   padding: EdgeInsets.all(0),
                 ),
               ],
             ),
             Gap(8),
             Text(
-              currentQuestion.questionText,
+              currentQuizQuestion.question.questionText,
               style: theme.textTheme.bodyLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             Gap(16),
-            ...getOptionWidgets(currentQuestion.options, theme),
+            ...getOptionWidgets(currentQuizQuestion.question.options, theme),
           ],
         );
       },

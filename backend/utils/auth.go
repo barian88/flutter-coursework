@@ -112,3 +112,4 @@ func ParseTemporaryToken(tokenString string) (*TemporaryClaims, error) {
 
 	return claims, nil
 }
+

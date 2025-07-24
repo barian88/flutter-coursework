@@ -29,7 +29,7 @@ class OperationArea extends ConsumerWidget {
         ElevatedButton(
           onPressed: backStatus,
           style: ElevatedButton.styleFrom(
-            backgroundColor: theme.colorScheme.secondary, // Change the color to red
+            backgroundColor: theme.colorScheme.secondary,
             minimumSize: Size(10, 50),
           ),
           child: Icon(Icons.arrow_back_ios_new, color: Colors.white),
@@ -40,7 +40,7 @@ class OperationArea extends ConsumerWidget {
             onPressed: nextStatus,
             style: ElevatedButton.styleFrom(
               backgroundColor: theme.colorScheme.primary,
-              // Change the color to red
+              overlayColor: theme.colorScheme.onPrimary.withOpacity(0.1),
               minimumSize: Size(10, 50),
             ),
             child: Text(
