@@ -89,6 +89,24 @@ extension QuestionTypeExtension on QuestionType {
         return 'True / False';
     }
   }
+
+  static String getDisplayNameFromName(String name) {
+    try {
+      final type = QuestionType.values.firstWhere((e) => e.name == name);
+      return type.displayName;
+    } catch (e) {
+      return name; // 如果找不到匹配的枚举值，返回原始名称
+    }
+  }
+
+  static String getNameFromDisplayName(String displayName) {
+    try {
+      final type = QuestionType.values.firstWhere((e) => e.displayName == displayName);
+      return type.name;
+    } catch (e) {
+      return displayName; // 如果找不到匹配的枚举值，返回原始显示名称
+    }
+  }
 }
 
 enum QuestionCategory {
@@ -108,6 +126,24 @@ extension QuestionCategoryExtension on QuestionCategory {
         return 'Inference';
     }
   }
+
+  static String getDisplayNameFromName(String name) {
+    try {
+      final category = QuestionCategory.values.firstWhere((e) => e.name == name);
+      return category.displayName;
+    } catch (e) {
+      return name; // 如果找不到匹配的枚举值，返回原始名称
+    }
+  }
+
+  static String getNameFromDisplayName(String displayName) {
+    try {
+      final category = QuestionCategory.values.firstWhere((e) => e.displayName == displayName);
+      return category.name;
+    } catch (e) {
+      return displayName; // 如果找不到匹配的枚举值，返回原始显示名称
+    }
+  }
 }
 
 enum QuestionDifficulty {
@@ -125,6 +161,24 @@ extension QuestionDifficultyExtension on QuestionDifficulty {
         return 'Medium';
       case QuestionDifficulty.hard:
         return 'Hard';
+    }
+  }
+
+  static String getDisplayNameFromName(String name) {
+    try {
+      final difficulty = QuestionDifficulty.values.firstWhere((e) => e.name == name);
+      return difficulty.displayName;
+    } catch (e) {
+      return name; // 如果找不到匹配的枚举值，返回原始名称
+    }
+  }
+
+  static String getNameFromDisplayName(String displayName) {
+    try {
+      final difficulty = QuestionDifficulty.values.firstWhere((e) => e.displayName == displayName);
+      return difficulty.name;
+    } catch (e) {
+      return displayName; // 如果找不到匹配的枚举值，返回原始显示名称
     }
   }
 }

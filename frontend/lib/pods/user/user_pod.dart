@@ -2,16 +2,17 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../../models/models.dart';
+import 'package:frontend/repositories/repositories.dart';
 
 part 'user_pod.g.dart';
 
 @riverpod
 class UserNotifier extends _$UserNotifier {
   @override
-  UserState build() {
+  AsyncValue<UserState> build() {
     // 保持provider活跃，防止状态丢失
     ref.keepAlive();
-    return const UserState();
+    return const AsyncValue.data(UserState());
   }
 
   Future<void> login(String token, User user) async {
@@ -20,11 +21,11 @@ class UserNotifier extends _$UserNotifier {
     await prefs.setString('auth_token', token);
     await prefs.setString('user_data', jsonEncode(user.toJson()));
     // 更新状态
-    state = UserState(
+    state = AsyncValue.data(UserState(
       isLoggedIn: true,
       token: token,
       user: user,
-    );
+    ));
   }
 
   Future<void> logout() async {
@@ -34,7 +35,7 @@ class UserNotifier extends _$UserNotifier {
     await prefs.remove('user_data');
     
     // 重置状态
-    state = const UserState();
+    state = const AsyncValue.data(UserState());
   }
 
   Future<void> loadUserFromStorage() async {
@@ -42,56 +43,72 @@ class UserNotifier extends _$UserNotifier {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
       final userData = prefs.getString('user_data');
-      // print(token);
+      
       if (token != null && userData != null) {
         final userJson = jsonDecode(userData) as Map<String, dynamic>;
         final user = User.fromJson(userJson);
         
-        state = UserState(
+        state = AsyncValue.data(UserState(
           isLoggedIn: true,
           token: token,
           user: user,
-        );
+        ));
+      } else {
+        // 没有存储的用户数据，设置默认未登录状态
+        state = const AsyncValue.data(UserState());
       }
-    } catch (e) {
-      // 如果加载失败，保持默认状态
-
+    } catch (error, stackTrace) {
+      state = AsyncValue.error(error, stackTrace);
     }
   }
 
-  void updateUser(User user) {
-    if (state.isLoggedIn && state.token != null) {
-      // 更新本地存储
-      SharedPreferences.getInstance().then((prefs) {
-        prefs.setString('user_data', jsonEncode(user.toJson()));
-      });
-      
-      // 更新状态
-      state = state.copyWith(user: user);
+  // 请求api获取用户统计数据
+  Future<void> loadUserStats() async {
+    final currentState = state.value;
+    
+    // 检查用户是否已登录，如果没有登录则不加载统计数据
+    if (currentState == null || !currentState.isLoggedIn) {
+      return;
+    }
+    
+    try {
+      final repository = ref.read(userRepositoryProvider);
+      final userStats = await repository.getUserStats();
+
+      state = AsyncValue.data(currentState.copyWith(
+        userStats: userStats,
+      ));
+    } catch (error, stackTrace) {
+      state = AsyncValue.error(error, stackTrace);
     }
   }
+
 }
 
 class UserState {
   final bool isLoggedIn;
   final String? token;
   final User? user;
+  final UserStats? userStats;
 
   const UserState({
     this.isLoggedIn = false,
     this.token,
     this.user,
+    this.userStats,
   });
 
   UserState copyWith({
     bool? isLoggedIn,
     String? token,
     User? user,
+    UserStats? userStats,
   }) {
     return UserState(
       isLoggedIn: isLoggedIn ?? this.isLoggedIn,
       token: token ?? this.token,
       user: user ?? this.user,
+      userStats: userStats ?? this.userStats,
     );
   }
 }

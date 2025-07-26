@@ -91,9 +91,10 @@ class ApiService {
     String? token;
     
     // 首先尝试从UserState获取token
-    final userState = _ref.read(userNotifierProvider);
+    final userStateAsync = _ref.read(userNotifierProvider);
+    final userState = userStateAsync.value;
     
-    if (userState.isLoggedIn && userState.token != null) {
+    if (userState != null && userState.isLoggedIn && userState.token != null) {
       token = userState.token;
     } else {
       // 如果UserState中没有token，尝试从本地存储读取

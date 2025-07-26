@@ -2,6 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import '../../screens/screens.dart';
+import '../user/user_pod.dart';
 
 part 'route_pod.g.dart';
 

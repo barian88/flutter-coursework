@@ -10,21 +10,25 @@ class User extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     final userState = ref.watch(userNotifierProvider);
 
-    return BaseContainer(child: Column(
-      children: [
-        Gap(25),
-        UserInfoCard(),
-        Gap(28),
-        Performance(),
-        Gap(28),
-        ErrorDistribution(),
-        Gap(28),
-        AccuracyRate(),
-
-      ],
-    ));
+    return BaseContainer(
+      child: userState.when(
+        data: (userState) => Column(
+          children: [
+            Gap(25),
+            UserInfoCard(),
+            Gap(28),
+            Performance(),
+            Gap(28),
+            ErrorDistribution(),
+            Gap(28),
+            AccuracyRate(),
+          ],
+        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stackTrace) => Center(child: Text('Error: $error')),
+      ),
+    );
   }
 }

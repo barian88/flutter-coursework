@@ -20,10 +20,6 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    // 应用启动时恢复用户认证状态
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await ref.read(userNotifierProvider.notifier).loadUserFromStorage();
-    });
   }
 
   @override

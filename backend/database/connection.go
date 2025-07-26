@@ -62,4 +62,5 @@ const (
 	QuizzesCollection        = "quizzes"               // 测验集合 - 存储测验记录和结果
 	PendingUsersCollection   = "pending_registrations" // 待注册用户集合 - 存储未完成注册的用户信息
 	PendingQuizzesCollection = "pending_quizzes"       // 待处理测验集合 - 存储未完成的测验记录
+	UserStatsCollection      = "user_stats"            // 用户统计集合 - 存储用户统计数据
 )

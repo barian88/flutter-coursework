@@ -7,11 +7,7 @@ import '../../../../themes/themes.dart';
 import 'package:frontend/utils/utils.dart';
 
 class HistoryCard extends StatelessWidget {
-  const HistoryCard({
-    super.key,
-    required this.quizItem,
-    required this.index,
-  });
+  const HistoryCard({super.key, required this.quizItem, required this.index});
 
   final Quiz quizItem;
   final int index;
@@ -118,7 +114,9 @@ class HistoryCard extends StatelessWidget {
                       Text('·'),
                       Gap(5),
                       Text(
-                        TimeFormatterUtil.formatCompletionTime(quizItem.completionTime),
+                        TimeFormatterUtil.formatCompletionTime(
+                          quizItem.completionTime,
+                        ),
                         style: TextStyle(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -127,10 +125,11 @@ class HistoryCard extends StatelessWidget {
                   ),
                   Gap(8),
                   Text(
-                    TimeFormatterUtil.formatDetailedTime(quizItem.completedAt) ,
+                    TimeFormatterUtil.formatDetailedTime(quizItem.completedAt),
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant
-                    ),                  ),
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
                 ],
               ),
             ),

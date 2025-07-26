@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../themes/themes.dart';
+import 'package:frontend/pods/pods.dart';
 
-class WelcomeCard extends StatelessWidget {
+class WelcomeCard extends ConsumerWidget {
   const WelcomeCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userState = ref.watch(userNotifierProvider);
+    final user = userState.value?.user;
+    
+    if (user == null) {
+      return const SizedBox.shrink();
+    }
 
     final theme = Theme.of(context);
     final purpleGradient = AppGradients.cardPurpleGradient(theme);
@@ -26,7 +34,7 @@ class WelcomeCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Hi, Ben 👋",
+                "Hi, ${user.username} 👋",
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -44,7 +52,7 @@ class WelcomeCard extends StatelessWidget {
           ),
           CircleAvatar(
               radius: 35,
-              backgroundImage: AssetImage('assets/images/ava.jpg')),
+              backgroundImage: NetworkImage(user.profilePictureUrl)),
         ],
       ),
     );

@@ -1,65 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../themes/colors.dart';
+import 'package:frontend/pods/pods.dart';
 
-class AccuracyRateChart extends StatefulWidget {
+class AccuracyRateChart extends ConsumerStatefulWidget {
   const AccuracyRateChart({super.key});
 
   @override
-  State<AccuracyRateChart> createState() => _AccuracyRateChartState();
+  ConsumerState<AccuracyRateChart> createState() => _AccuracyRateChartState();
 }
 
-class _AccuracyRateChartState extends State<AccuracyRateChart> {
-  static const maxX = 4.0; // 最大 X 值
-  static const maxY = 4.0; // 最大 Y 值
-  static const dataLength = 6; // 数据点数量
-
-  List<FlSpot> data = [
-    FlSpot(1, 1.7),
-    FlSpot(2.6, 2),
-    FlSpot(4, 3.2),
-    FlSpot(0, 3.1),
-    FlSpot(1.8, 2),
-    FlSpot(3.5, 3),
-    FlSpot(3, 4),
-  ]..sort((a, b) => a.x.compareTo(b.x));
+class _AccuracyRateChartState extends ConsumerState<AccuracyRateChart> {
+  
+  List<FlSpot> _generateSpots(List<dynamic> accuracyData) {
+    if (accuracyData.isEmpty) return [];
+    
+    List<FlSpot> spots = [];
+    for (int i = 0; i < accuracyData.length; i++) {
+      final item = accuracyData[i];
+      spots.add(FlSpot(i.toDouble(), item.value * 4.0)); // 将百分比(0-1)转换为图表范围(0-4)
+    }
+    return spots;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final userState = ref.watch(userNotifierProvider);
+    final accuracyRate = userState.value?.userStats?.accuracyRate;
+    
+    if (accuracyRate == null || accuracyRate.data.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return SizedBox(
       width: double.infinity,
       height: 270,
-      child: LineChart(mainData()),
+      child: LineChart(mainData(accuracyRate.data)),
     );
   }
 
-  Widget bottomTitleWidgets(double value, TitleMeta meta) {
+  Widget bottomTitleWidgets(double value, TitleMeta meta, List<dynamic> accuracyData) {
     final style = Theme.of(context).textTheme.bodyMedium?.copyWith(
       fontWeight: FontWeight.bold,
       color: AppColors.grey1,
     );
-    Widget text;
-    switch (value.toInt()) {
-      case 0:
-        text = Text('', style: style);
-        break;
-      case 1:
-        text = Text('', style: style);
-        break;
-      case 2:
-        text = Text('', style: style);
-        break;
-      case 3:
-        text = Text('', style: style);
-        break;
-      case 4:
-        text = Text('Latest', style: style);
-        break;
-      default:
-        text = Text('', style: style);
-        break;
-    }
+    
+    final index = value.toInt();
     final isLast = value == meta.max;
+    
+    Widget text;
+    if (index >= 0 && index < accuracyData.length) {
+      if (isLast) {
+        text = Text('Latest', style: style);
+      } else if (index == 0) {
+        text = Text('7 Days Ago', style: style);
+      } else {
+        text = Text('', style: style);
+      }
+    } else {
+      text = Text('', style: style);
+    }
 
     return SideTitleWidget(
       meta: meta,
@@ -99,7 +100,11 @@ class _AccuracyRateChartState extends State<AccuracyRateChart> {
     return Text(text, style: style, textAlign: TextAlign.left);
   }
 
-  LineChartData mainData() {
+  LineChartData mainData(List<dynamic> accuracyData) {
+    final spots = _generateSpots(accuracyData);
+    final maxX = (accuracyData.length - 1).toDouble();
+    final maxY = 4.0;
+    
     return LineChartData(
       gridData: FlGridData(
         show: true,
@@ -123,7 +128,7 @@ class _AccuracyRateChartState extends State<AccuracyRateChart> {
             showTitles: true,
             reservedSize: 30,
             interval: 1,
-            getTitlesWidget: bottomTitleWidgets,
+            getTitlesWidget: (value, meta) => bottomTitleWidgets(value, meta, accuracyData),
           ),
         ),
         leftTitles: AxisTitles(
@@ -147,7 +152,7 @@ class _AccuracyRateChartState extends State<AccuracyRateChart> {
       maxY: maxY,
       lineBarsData: [
         LineChartBarData(
-          spots: data,
+          spots: spots,
           isCurved: true,
           color: AppColors.bluePurple,
           barWidth: 5,
@@ -155,14 +160,13 @@ class _AccuracyRateChartState extends State<AccuracyRateChart> {
           dotData: FlDotData(
             show: true,
             getDotPainter: (_, _, _, index) {
-              final isLast = (index == dataLength);
+              final isLast = (index == spots.length - 1);
 
               if (isLast) {
                 return FlDotCirclePainter(
                   radius: 3,
                   color: Theme.of(context).colorScheme.secondary,
                   strokeWidth: 3.5,
-                  // strokeColor: Theme.of(context).colorScheme.primary,
                   strokeColor: AppColors.bluePurple,
                 );
               } else {

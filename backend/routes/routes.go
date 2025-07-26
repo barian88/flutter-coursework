@@ -29,12 +29,14 @@ func SetupRoutes() *gin.Engine {
 	// Initialize services
 	verificationService := services.NewVerificationService()
 	userService := services.NewUserService(verificationService)
+	userStatsService := services.NewUserStatsService()
 	questionService := services.NewQuestionService()
 	quizService := services.NewQuizService(questionService)
 
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler(userService, verificationService)
 	userHandler := handlers.NewUserHandler(userService)
+	userStatsHandler := handlers.NewUserStatsHandler(userStatsService)
 	questionHandler := handlers.NewQuestionHandler(questionService)
 	quizHandler := handlers.NewQuizHandler(quizService)
 
@@ -54,11 +56,17 @@ func SetupRoutes() *gin.Engine {
 	}
 
 	// User profile routes
-	userRoutes := r.Group("/users")
+	userRoutes := r.Group("/user")
 	{
 		userRoutes.GET("/profile", middleware.AuthMiddleware(), userHandler.GetProfile)
 		// TODO: 实现以下handlers
 		// userRoutes.PUT("/profile", middleware.AuthMiddleware(), userHandler.UpdateProfile)
+	}
+
+	// User profile routes
+	userStatsRoutes := r.Group("/user-stats")
+	{
+		userStatsRoutes.GET("/", middleware.AuthMiddleware(), userStatsHandler.GetUserStats)
 	}
 
 	// Question routes

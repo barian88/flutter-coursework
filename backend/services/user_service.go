@@ -49,8 +49,25 @@ func (s *UserService) GetUserByEmail(email string) (*models.User, error) {
 	return &user, nil
 }
 
+// Login 用户登录验证
+func (s *UserService) Login(req *models.LoginRequest) (*models.User, error) {
+	// 第1步：根据邮箱查找用户
+	user, err := s.GetUserByEmail(req.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	// 第2步：验证密码
+	if !utils.CheckPassword(req.Password, user.Password) {
+		return nil, errors.New("Incorrect password")
+	}
+
+	// 第3步：返回用户信息（不包含密码）
+	return user, nil
+}
+
 // GetUserByID 根据用户ID查找用户 - 用于获取用户详细信息
-func (s *UserService) GetUserByID(userID primitive.ObjectID) (*models.UserResponse, error) {
+func (s *UserService) GetUserByID(userID primitive.ObjectID) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -64,43 +81,7 @@ func (s *UserService) GetUserByID(userID primitive.ObjectID) (*models.UserRespon
 		return nil, errors.New("Database query error")
 	}
 
-	// 转换为响应格式（不包含密码）
-	userResponse := &models.UserResponse{
-		ID:                user.ID,
-		Username:          user.Username,
-		Email:             user.Email,
-		ProfilePictureUrl: user.ProfilePictureUrl,
-		Role:              user.Role,
-		CreatedAt:         user.CreatedAt,
-	}
-
-	return userResponse, nil
-}
-
-// Login 用户登录验证
-func (s *UserService) Login(req *models.LoginRequest) (*models.UserResponse, error) {
-	// 第1步：根据邮箱查找用户
-	user, err := s.GetUserByEmail(req.Email)
-	if err != nil {
-		return nil, err
-	}
-
-	// 第2步：验证密码
-	if !utils.CheckPassword(req.Password, user.Password) {
-		return nil, errors.New("Incorrect password")
-	}
-
-	// 第3步：返回用户信息（不包含密码）
-	userResponse := &models.UserResponse{
-		ID:                user.ID,
-		Username:          user.Username,
-		Email:             user.Email,
-		ProfilePictureUrl: user.ProfilePictureUrl,
-		Role:              user.Role,
-		CreatedAt:         user.CreatedAt,
-	}
-
-	return userResponse, nil
+	return &user, nil
 }
 
 // RegisterRequest 第一步：处理注册请求，保存待注册信息
@@ -144,7 +125,7 @@ func (s *UserService) RegisterRequest(req *models.RegisterRequestModel) error {
 }
 
 // CompleteRegistration 完成注册（使用临时token）
-func (s *UserService) CompleteRegistration(email string) (*models.UserResponse, error) {
+func (s *UserService) CompleteRegistration(email string) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -179,7 +160,7 @@ func (s *UserService) CompleteRegistration(email string) (*models.UserResponse, 
 }
 
 // createUserDirectly 直接创建用户（密码已加密）
-func (s *UserService) createUserDirectly(pendingReg *models.PendingRegistration) (*models.UserResponse, error) {
+func (s *UserService) createUserDirectly(pendingReg *models.PendingRegistration) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -199,16 +180,9 @@ func (s *UserService) createUserDirectly(pendingReg *models.PendingRegistration)
 		return nil, errors.New("User creation failed")
 	}
 
-	userResponse := &models.UserResponse{
-		ID:                result.InsertedID.(primitive.ObjectID),
-		Username:          newUser.Username,
-		Email:             newUser.Email,
-		ProfilePictureUrl: newUser.ProfilePictureUrl,
-		Role:              newUser.Role,
-		CreatedAt:         newUser.CreatedAt,
-	}
+	newUser.ID = result.InsertedID.(primitive.ObjectID)
 
-	return userResponse, nil
+	return &newUser, nil
 }
 
 // UpdatePassword 更新用户密码

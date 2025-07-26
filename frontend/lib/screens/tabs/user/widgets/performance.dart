@@ -1,46 +1,60 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:frontend/pods/pods.dart';
 
-class Performance extends StatelessWidget {
+class Performance extends ConsumerWidget {
   const Performance({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+
+    final userState = ref.watch(userNotifierProvider);
+    final performance = userState.value?.userStats?.performance;
+    if (performance == null) {
+      return const SizedBox.shrink();
+    }
+
     final theme = Theme.of(context);
 
-    final Map<String, int> performanceData = {
-      "Task": 185,
-      "Score": 2310,
-      "Avg.Time": 17,
-    };
-
-    final List<Widget> performanceItems = [];
     final divider = Container(
       width: 1,
       height: 35,
       color: theme.colorScheme.primary.withAlpha(128),
       margin: const EdgeInsets.symmetric(horizontal: 10),
     );
-    for (int i = 0; i < performanceData.length; i++) {
-      final key = performanceData.keys.elementAt(i);
-      final value = performanceData[key];
 
-      final content = Column(
+    final performanceItems = [
+      Column(
         children: [
           Text(
-            '$value',
+            '${performance.taskNum}',
             style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
           ),
-          Text(key),
+          Text('Tasks'),
         ],
-      );
-      performanceItems.add(content);
-      if (i != performanceData.length - 1) {
-        performanceItems.add(divider);
-      }
-    }
+      ),
+      divider,
+      Column(
+        children: [
+          Text(
+            '${performance.score}',
+            style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+          ),
+          Text('Score'),
+        ],
+      ),
+      divider,
+      Column(
+        children: [
+          Text(
+            '${performance.avgTime.toStringAsFixed(1)}s',
+            style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+          ),
+          Text('Avg. Time'),
+        ],
+      ),
+    ];
 
     return Column(
       children: [

@@ -27,9 +27,7 @@ func (h *UserHandler) GetProfile(c *gin.Context) {
 	userID, exists := middleware.GetUserIDFromContext(c)
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"success": false,
-			"message": "User authentication information not found",
-			"error":   "Failed to get user ID",
+			"error": "User authentication information not found",
 		})
 		return
 	}
@@ -38,9 +36,7 @@ func (h *UserHandler) GetProfile(c *gin.Context) {
 	user, err := h.userService.GetUserByID(userID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
-			"success": false,
-			"message": "User not found",
-			"error":   err.Error(),
+			"error": "User not found",
 		})
 		return
 	}

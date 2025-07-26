@@ -12,7 +12,7 @@ UserRepository userRepository(Ref ref) {
 
 abstract class UserRepository {
   Future<User> getCurrentUser();
-  Future<User> updateProfile(UpdateProfileRequest request);
+  Future<UserStats> getUserStats();
 }
 
 class UserRepositoryImpl implements UserRepository {
@@ -26,7 +26,7 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<User> updateProfile(UpdateProfileRequest request) async {
-    return _userApi.updateProfile(request);
+  Future<UserStats> getUserStats() async {
+    return _userApi.getUserStats();
   }
 }

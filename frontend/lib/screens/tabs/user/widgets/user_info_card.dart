@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/models/models.dart';
 import 'package:frontend/themes/themes.dart';
+import 'package:frontend/pods/pods.dart';
 import 'package:gap/gap.dart';
 
-class UserInfoCard extends StatelessWidget {
+class UserInfoCard extends ConsumerWidget {
   const UserInfoCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final User user = User(
-      id: '',
-      username: "Ben",
-      email: "gujianyang0808@gmail.com",
-      profilePictureUrl: "assets/images/ava.jpg",
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userState = ref.watch(userNotifierProvider);
+    final user = userState.value?.user;
+
+    if (user == null) {
+      return const SizedBox.shrink();
+    }
 
     final theme = Theme.of(context);
     final textColor = Colors.white;
@@ -75,7 +77,10 @@ class UserInfoCard extends StatelessWidget {
               backgroundColor: AppColors.grey1,
               child: CircleAvatar(
                 radius: 35,
-                backgroundImage: AssetImage(user.profilePictureUrl),
+                backgroundImage: NetworkImage(user.profilePictureUrl),
+                onBackgroundImageError: (error, stackTrace) {
+                  // 处理图片加载失败
+                },
               ),
             ),
           ),

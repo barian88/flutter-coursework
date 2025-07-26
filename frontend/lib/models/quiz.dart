@@ -20,6 +20,24 @@ extension QuizTypeExtension on QuizType {
         return 'Custom Quiz';
     }
   }
+
+  static String getDisplayNameFromName(String name) {
+    try {
+      final type = QuizType.values.firstWhere((e) => e.name == name);
+      return type.displayName;
+    } catch (e) {
+      return name; // 如果找不到匹配的枚举值，返回原始名称
+    }
+  }
+
+  static String getNameFromDisplayName(String displayName) {
+    try {
+      final type = QuizType.values.firstWhere((e) => e.displayName == displayName);
+      return type.name;
+    } catch (e) {
+      return displayName; // 如果找不到匹配的枚举值，返回原始显示名称
+    }
+  }
 }
 
 class Quiz{

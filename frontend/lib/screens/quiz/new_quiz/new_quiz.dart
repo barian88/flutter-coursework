@@ -21,7 +21,11 @@ class _NewQuizState extends ConsumerState<NewQuiz> {
     Future.microtask(() {
       final (type, category, difficulty) = _parseQueryParameters();
       final quizNotifier = ref.read(quizNotifierProvider.notifier);
-      quizNotifier.loadNewQuiz(type: type.name, category: category?.name, difficulty: difficulty?.name);
+      quizNotifier.loadNewQuiz(
+        type: type,
+        category: category,
+        difficulty: difficulty,
+      );
     });
   }
 
@@ -33,24 +37,18 @@ class _NewQuizState extends ConsumerState<NewQuiz> {
       data: (state) {
         if (state.quiz.questions.isEmpty) {
           return const Scaffold(
-            body: Center(
-              child: Text('No quiz data available'),
-            ),
+            body: Center(child: Text('No quiz data available')),
           );
         }
-        
+
         return _buildQuizScreen(context);
       },
-      loading: () => const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      ),
-      error: (error, stackTrace) => Scaffold(
-        body: Center(
-          child: Text('Error: $error'),
-        ),
-      ),
+      loading:
+          () =>
+              const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error:
+          (error, stackTrace) =>
+              Scaffold(body: Center(child: Text('Error: $error'))),
     );
   }
 
@@ -81,43 +79,30 @@ class _NewQuizState extends ConsumerState<NewQuiz> {
     );
   }
 
-  (QuizType, QuestionCategory?, QuestionDifficulty?) _parseQueryParameters() {
+  (String, String?, String?) _parseQueryParameters() {
     // 获取查询参数
     final state = GoRouterState.of(context);
+    // 传入的typeParam是name
     final typeParam = state.uri.queryParameters['type'];
+    // 传入的categoryParam和difficultyParam是displayName
     final categoryParam = state.uri.queryParameters['category'];
     final difficultyParam = state.uri.queryParameters['difficulty'];
-    // 转换为对应的enum类型（如果参数存在）
-    QuizType type = QuizType.randomTasks; // 默认值
-    QuestionCategory? category;
-    QuestionDifficulty? difficulty;
 
-    for (var cat in QuizType.values) {
-      if (cat.name == typeParam) {
-        type = cat;
-        break;
-      }
-    }
+    // 得到对应的enum.name
+    final String type = typeParam ?? QuizType.randomTasks.name;
+    final String? category;
+    final String? difficulty;
 
-    if (categoryParam != null) {
-      // 根据displayName找到对应的enum
-      for (var cat in QuestionCategory.values) {
-        if (cat.displayName == categoryParam) {
-          category = cat;
-          break;
-        }
-      }
-    }
-
-    if (difficultyParam != null) {
-      // 根据displayName找到对应的enum
-      for (var diff in QuestionDifficulty.values) {
-        if (diff.displayName == difficultyParam) {
-          difficulty = diff;
-          break;
-        }
-      }
-    }
+    category =
+        (categoryParam != null)
+            ? QuestionCategoryExtension.getNameFromDisplayName(categoryParam)
+            : null;
+    difficulty =
+        (difficultyParam != null)
+            ? QuestionDifficultyExtension.getNameFromDisplayName(
+              difficultyParam,
+            )
+            : null;
 
     return (type, category, difficulty);
   }

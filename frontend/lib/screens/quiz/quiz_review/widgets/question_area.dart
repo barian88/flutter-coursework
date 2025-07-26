@@ -11,56 +11,54 @@ class QuestionArea extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final quizState = ref.watch(quizNotifierProvider);
-    final theme = Theme.of(context);
+    final state = quizState.value;
 
-    return quizState.when(
-      data: (state) {
-        final currentQuizQuestion = state.quiz.questions[state.currentQuestionIndex];
-        
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    if (state == null) {
+      return const SizedBox.shrink();
+    }
+
+    final theme = Theme.of(context);
+    final currentQuizQuestion = state.quiz.questions[state.currentQuestionIndex];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Question",
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Row(
           children: [
-            Text(
-              "Question",
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Row(
-              children: [
-                Chip(
-                  label: Text(currentQuizQuestion.question.type.displayName, style: theme.textTheme.bodySmall),
-                  padding: EdgeInsets.all(0),
-                ),
-                Gap(8),
-                Chip(
-                  label: Text(currentQuizQuestion.question.category.displayName, style: theme.textTheme.bodySmall),
-                  padding: EdgeInsets.all(0),
-                ),
-                Gap(8),
-                Chip(
-                  label: Text(currentQuizQuestion.question.difficulty.displayName, style: theme.textTheme.bodySmall),
-                  padding: EdgeInsets.all(0),
-                ),
-              ],
+            Chip(
+              label: Text(currentQuizQuestion.question.type.displayName, style: theme.textTheme.bodySmall),
+              padding: EdgeInsets.all(0),
             ),
             Gap(8),
-            Text(
-              currentQuizQuestion.question.questionText,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+            Chip(
+              label: Text(currentQuizQuestion.question.category.displayName, style: theme.textTheme.bodySmall),
+              padding: EdgeInsets.all(0),
             ),
-            Gap(16),
-            ...getOptionWidgets(currentQuizQuestion.question.options, theme),
+            Gap(8),
+            Chip(
+              label: Text(currentQuizQuestion.question.difficulty.displayName, style: theme.textTheme.bodySmall),
+              padding: EdgeInsets.all(0),
+            ),
           ],
-        );
-      },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => Center(
-        child: Text('Error: $error'),
-      ),
+        ),
+        Gap(8),
+        Text(
+          currentQuizQuestion.question.questionText,
+          style: theme.textTheme.bodyLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Gap(16),
+        ...getOptionWidgets(currentQuizQuestion.question.options, theme),
+      ],
     );
+
   }
 }
 

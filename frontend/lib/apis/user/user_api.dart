@@ -20,28 +20,11 @@ class UserApi {
     return User.fromJson(response);
   }
 
-  Future<User> updateProfile(UpdateProfileRequest request) async {
-    final response = await _apiService.put('/users/profile', body: request.toJson());
-    return User.fromJson(response);
+  Future<UserStats> getUserStats() async {
+    final response = await _apiService.get('/user-stats');
+    return UserStats.fromJson(response);
   }
 
 }
 
-// 用户资料更新请求模型
-class UpdateProfileRequest {
-  final String? username;
-  final String? email;
-
-  UpdateProfileRequest({
-    this.username,
-    this.email,
-  });
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-    if (username != null) data['username'] = username;
-    if (email != null) data['email'] = email;
-    return data;
-  }
-}
 
