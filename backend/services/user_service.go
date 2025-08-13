@@ -18,16 +18,18 @@ type UserService struct {
 	collection          *mongo.Collection    // MongoDB集合引用
 	pendingCollection   *mongo.Collection    // 待注册用户集合引用
 	verificationService *VerificationService // 验证码服务
+	userStatsService    *UserStatsService    // 用户统计服务
 }
 
 // NewUserService 创建新的用户服务实例
 // 这是一个构造函数，返回初始化好的UserService
-func NewUserService(verificationService *VerificationService) *UserService {
+func NewUserService(verificationService *VerificationService, userStatsService *UserStatsService) *UserService {
 	return &UserService{
 		// 获取users集合的引用，用于数据库操作
 		collection:          database.GetCollection(database.UsersCollection),
 		pendingCollection:   database.GetCollection(database.PendingUsersCollection),
 		verificationService: verificationService,
+		userStatsService:    userStatsService,
 	}
 }
 
@@ -175,12 +177,17 @@ func (s *UserService) createUserDirectly(pendingReg *models.PendingRegistration)
 		UpdatedAt:         now,
 	}
 
+	// 用户插入到user表
 	result, err := s.collection.InsertOne(ctx, newUser)
 	if err != nil {
 		return nil, errors.New("User creation failed")
 	}
-
 	newUser.ID = result.InsertedID.(primitive.ObjectID)
+	// 创建用户统计记录
+	_, err = s.userStatsService.CreateNewUserStats(newUser.ID)
+	if err != nil {
+		return nil, err
+	}
 
 	return &newUser, nil
 }

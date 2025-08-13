@@ -3,19 +3,23 @@ import 'question.dart';
 class QuizQuestion {
   final Question question;
   final List<int> userAnswerIndex;
+  final bool isCorrect;
 
   const QuizQuestion({
     required this.question,
     this.userAnswerIndex = const [],
+    this.isCorrect = false,
   });
 
   QuizQuestion copyWith({
     Question? question,
     List<int>? userAnswerIndex,
+    bool? isCorrect,
   }) {
     return QuizQuestion(
       question: question ?? this.question,
       userAnswerIndex: userAnswerIndex ?? this.userAnswerIndex,
+      isCorrect: isCorrect ?? this.isCorrect,
     );
   }
 
@@ -23,24 +27,17 @@ class QuizQuestion {
   factory QuizQuestion.fromJson(Map<String, dynamic> json) => QuizQuestion(
     question: Question.fromJson(json['question'] ?? {}),
     userAnswerIndex: List<int>.from(json['user_answer_index'] ?? []),
+    isCorrect: json['is_correct'] ?? false,
   );
 
   Map<String, dynamic> toJson() => {
     'question': question.toJson(),
     'user_answer_index': userAnswerIndex,
+    'is_correct': isCorrect,
   };
 
   // 便利方法
   bool get isAnswered => userAnswerIndex.isNotEmpty;
-  
-  bool get isCorrect {
-    if (!isAnswered) return false;
-    
-    // 检查用户答案是否与正确答案完全匹配
-    final userSet = Set<int>.from(userAnswerIndex);
-    final correctSet = Set<int>.from(question.correctAnswerIndex);
-    return userSet.length == correctSet.length && userSet.containsAll(correctSet);
-  }
 
   // 获取问题ID的便利方法
   String get questionId => question.id;

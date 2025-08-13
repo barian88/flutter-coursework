@@ -12,6 +12,33 @@ type UserStats struct {
 	ErrorDistribution ErrorDistribution  `json:"error_distribution" bson:"error_distribution"` // 错误分布
 }
 
+func NewUserStats(userID primitive.ObjectID) *UserStats {
+	return &UserStats{
+		ID: userID,
+		Performance: Performance{
+			TaskNum: 0,
+			Score:   0,
+			AvgTime: 0.0,
+		},
+		AccuracyRate: AccuracyRate{
+			Data: make([]AccuracyRateItem, 7), // 初始化7个数据点
+		},
+		ErrorDistribution: ErrorDistribution{
+			DataByCategory: []ErrorDistributionItem{
+				{Type: "truthTable", Value: 0, Count: 0},
+				{Type: "equivalence", Value: 0, Count: 0},
+				{Type: "inference", Value: 0, Count: 0},
+			},
+			DataByDifficulty: []ErrorDistributionItem{
+				{Type: "easy", Value: 0, Count: 0},
+				{Type: "medium", Value: 0, Count: 0},
+				{Type: "hard", Value: 0, Count: 0},
+			},
+		},
+	}
+
+}
+
 type Performance struct {
 	TaskNum int     `json:"task_num" bson:"task_num"` // (正确)任务数量
 	Score   int     `json:"score" bson:"score"`       // 总分
@@ -34,4 +61,5 @@ type ErrorDistribution struct {
 type ErrorDistributionItem struct {
 	Type  string  `json:"type" bson:"type"`   // 类别
 	Value float64 `json:"value" bson:"value"` // 比例值
+	Count int     `json:"count" bson:"count"` // 历史错误数量
 }

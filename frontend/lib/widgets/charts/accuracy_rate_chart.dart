@@ -54,7 +54,7 @@ class _AccuracyRateChartState extends ConsumerState<AccuracyRateChart> {
       if (isLast) {
         text = Text('Latest', style: style);
       } else if (index == 0) {
-        text = Text('7 Days Ago', style: style);
+        text = Text('', style: style);
       } else {
         text = Text('', style: style);
       }

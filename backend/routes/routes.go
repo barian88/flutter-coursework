@@ -28,10 +28,10 @@ func SetupRoutes() *gin.Engine {
 
 	// Initialize services
 	verificationService := services.NewVerificationService()
-	userService := services.NewUserService(verificationService)
 	userStatsService := services.NewUserStatsService()
+	userService := services.NewUserService(verificationService, userStatsService)
 	questionService := services.NewQuestionService()
-	quizService := services.NewQuizService(questionService)
+	quizService := services.NewQuizService(questionService, userStatsService)
 
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler(userService, verificationService)

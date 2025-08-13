@@ -46,6 +46,7 @@ class _QuizReviewState extends ConsumerState<QuizReview> {
           final questionType = currentQuizQuestion.question.type;
           final userAnswerIndex = currentQuizQuestion.userAnswerIndex;
           final correctAnswerIndex = currentQuizQuestion.question.correctAnswerIndex;
+          final isCorrect = currentQuizQuestion.isCorrect;
 
           return BaseContainer(
             isScrollable: false,
@@ -58,7 +59,7 @@ class _QuizReviewState extends ConsumerState<QuizReview> {
                 Expanded(flex: 4, child: QuestionArea()),
                 Divider(height: 0),
                 const Gap(10),
-                AnswerReview(correctAnswerIndex: correctAnswerIndex, userAnswerIndex: userAnswerIndex, questionType: questionType),
+                AnswerReview(correctAnswerIndex: correctAnswerIndex, userAnswerIndex: userAnswerIndex, isCorrect: isCorrect, questionType: questionType),
                 const Gap(10),
                 Expanded(
                   flex: 5,

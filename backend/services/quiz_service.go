@@ -13,15 +13,17 @@ import (
 )
 
 type QuizService struct {
-	questionService *QuestionService
-	collection      *mongo.Collection
+	questionService   *QuestionService
+	userStatsService  *UserStatsService
+	collection        *mongo.Collection
 	//pendingCollection *mongo.Collection
 }
 
-func NewQuizService(questionService *QuestionService) *QuizService {
+func NewQuizService(questionService *QuestionService, userStatsService *UserStatsService) *QuizService {
 	return &QuizService{
-		questionService: questionService,
-		collection:      database.GetCollection(database.QuizzesCollection),
+		questionService:  questionService,
+		userStatsService: userStatsService,
+		collection:       database.GetCollection(database.QuizzesCollection),
 		//pendingCollection: database.GetCollection(database.PendingQuizzesCollection),
 	}
 }
@@ -46,7 +48,7 @@ func (s *QuizService) CreateQuiz(userID primitive.ObjectID, req *models.CreateQu
 	// 创建Quiz对象
 	quiz := models.Quiz{
 		UserID:    userID,
-		Type:     req.Type,
+		Type:      req.Type,
 		Questions: quizQuestions,
 	}
 	//// 插入Quiz到数据库
@@ -69,10 +71,14 @@ func (s *QuizService) SubmitQuiz(userID primitive.ObjectID, req *models.SubmitQu
 	completedAt := time.Now()
 	// 2. 计算正确答案数量
 	correctCount := 0
-	for _, question := range req.Questions {
+	for index, question := range req.Questions {
 		if utils.AreSlicesEqual(question.UserAnswerIndex, question.Question.CorrectAnswerIndex) {
 			correctCount++
+			question.IsCorrect = true
+		} else {
+			question.IsCorrect = false
 		}
+		req.Questions[index] = question // 更新问题状态
 	}
 	// 3. 创建Quiz记录
 	quiz := models.Quiz{
@@ -90,7 +96,16 @@ func (s *QuizService) SubmitQuiz(userID primitive.ObjectID, req *models.SubmitQu
 	}
 	// 5. 设置生成的ID
 	quiz.ID = result.InsertedID.(primitive.ObjectID)
-	// 6. 返回结果
+	
+	// 6. 更新用户统计信息
+	err = s.userStatsService.UpdateUserStats(userID, &quiz, s)
+	if err != nil {
+		// 统计更新失败，记录错误但不影响quiz提交成功
+		// 可以考虑添加日志记录
+		// log.Printf("Failed to update user stats: %v", err)
+	}
+
+	// 7. 返回结果
 	return &quiz, nil
 }
 
@@ -125,4 +140,33 @@ func (s *QuizService) GetQuizByID(quizID primitive.ObjectID) (*models.Quiz, erro
 	}
 
 	return &quiz, nil
+}
+
+func (s *QuizService) GetUserTodayQuizzes(userID primitive.ObjectID) ([]models.Quiz, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// 获取今天的开始和结束时间
+	startOfDay := time.Now().Truncate(24 * time.Hour)
+	endOfDay := startOfDay.Add(24 * time.Hour)
+
+	filter := bson.M{
+		"user_id": userID,
+		"completed_at": bson.M{
+			"$gte": startOfDay,
+			"$lt":  endOfDay,
+		},
+	}
+
+	cursor, err := s.collection.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	var quizzes []models.Quiz
+	if err := cursor.All(ctx, &quizzes); err != nil {
+		return nil, err
+	}
+
+	return quizzes, nil
+
 }

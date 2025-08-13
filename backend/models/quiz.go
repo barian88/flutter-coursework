@@ -8,6 +8,7 @@ import (
 type QuizQuestion struct {
 	Question        *Question `json:"question" bson:"question"`
 	UserAnswerIndex []int     `json:"user_answer_index" bson:"user_answer_index"`
+	IsCorrect       bool      `json:"is_correct" bson:"is_correct"`
 }
 
 type Quiz struct {

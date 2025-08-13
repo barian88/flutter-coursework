@@ -8,11 +8,13 @@ class AnswerReview extends StatelessWidget {
     super.key,
     required this.correctAnswerIndex,
     required this.userAnswerIndex,
+    required this.isCorrect,
     required this.questionType,
   });
 
   final List<int> correctAnswerIndex;
   final List<int> userAnswerIndex;
+  final bool isCorrect;
   final QuestionType questionType;
 
   String _convertIndexesToLabels(List<int> indexes) {
@@ -29,9 +31,6 @@ class AnswerReview extends StatelessWidget {
     }
   }
 
-  bool _isCorrect() {
-    return ListEquality().equals(correctAnswerIndex, userAnswerIndex);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +48,7 @@ class AnswerReview extends StatelessWidget {
         Text(
           'Your Answer: ${_convertIndexesToLabels(userAnswerIndex)}',
           style: theme.textTheme.bodySmall?.copyWith(
-            color: _isCorrect() ? theme.colorScheme.green : theme.colorScheme.red,
+            color: isCorrect ? theme.colorScheme.green : theme.colorScheme.red,
           ),
         ),
       ],
